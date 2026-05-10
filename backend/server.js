@@ -75,7 +75,7 @@ const mongoOpts = {
 };
 
 mongoose
-  .connect(process.env.MONGO_URI, mongoOpts)
+  .connect(process.env.MONGO_URL, mongoOpts)
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
   .catch((err) => console.error('❌ MongoDB connection error:', err.message));
 
