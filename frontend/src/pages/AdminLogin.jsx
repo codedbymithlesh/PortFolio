@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaBolt, FaEye, FaEyeSlash, FaUnlock, FaArrowLeft } from 'react-icons/fa';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
@@ -29,7 +30,7 @@ export default function AdminLogin() {
         setError(data.message || 'Login failed');
       }
     } catch {
-      setError('⚠️ Cannot connect to server. Make sure the backend is running on port 5000.');
+      setError('⚠️ Cannot connect to server. Make sure the backend is running.');
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export default function AdminLogin() {
     <div className="admin-login-page">
       <div className="admin-login-card">
         <div className="admin-login-header">
-          <div className="admin-logo-icon">⚡</div>
+          <div className="admin-logo-icon"><FaBolt /></div>
           <h1 className="admin-login-title">Admin Access</h1>
           <p className="admin-login-sub">Portfolio Control Panel</p>
         </div>
@@ -64,19 +65,19 @@ export default function AdminLogin() {
                 tabIndex={-1}
                 aria-label={showPass ? 'Hide password' : 'Show password'}
               >
-                {showPass ? '🙈' : '👁'}
+                {showPass ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
             {error && <span className="admin-error-msg">{error}</span>}
           </div>
 
           <button type="submit" className="admin-login-btn" disabled={loading}>
-            {loading ? <span className="admin-spinner"></span> : '🔓 Enter Dashboard'}
+            {loading ? <span className="admin-spinner"></span> : <><FaUnlock style={{marginRight: '8px'}} /> Enter Dashboard</>}
           </button>
         </form>
 
         <p className="admin-login-footer">
-          <a href="/" className="admin-back-link">← Back to Portfolio</a>
+          <a href="/" className="admin-back-link"><FaArrowLeft style={{marginRight: '6px'}} /> Back to Portfolio</a>
         </p>
       </div>
     </div>

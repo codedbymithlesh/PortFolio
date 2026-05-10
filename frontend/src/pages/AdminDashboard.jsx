@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FaUser, FaInfoCircle, FaGraduationCap, FaTools, 
+  FaBriefcase, FaEnvelope, FaLock, FaBolt, 
+  FaEye, FaSignOutAlt, FaPlus, FaTrash, 
+  FaSave, FaRegEnvelopeOpen, FaCog, FaHourglassHalf, FaCheck, FaTimes
+} from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
 const TABS = ['Hero', 'About', 'Education', 'Skills', 'Projects', 'Contact', 'Messages', 'Settings'];
-const TAB_ICONS = ['🦸', '🌌', '🎓', '⚙️', '🏗️', '📡', '✉️', '🔒'];
+const TAB_ICONS = [
+  <FaUser />, <FaInfoCircle />, <FaGraduationCap />, <FaTools />, 
+  <FaBriefcase />, <FaEnvelope />, <FaRegEnvelopeOpen />, <FaCog />
+];
 
 /* ── Tiny reusable field ── */
 const Field = ({ label, value, onChange, textarea, type = 'text' }) => (
@@ -18,7 +27,7 @@ const Field = ({ label, value, onChange, textarea, type = 'text' }) => (
 /* ── Save button with feedback ── */
 const SaveBtn = ({ onClick, status }) => (
   <button className={`adm-save-btn ${status}`} onClick={onClick}>
-    {status === 'saving' ? '⏳ Saving...' : status === 'ok' ? '✅ Saved!' : status === 'err' ? '❌ Error' : '💾 Save Changes'}
+    {status === 'saving' ? <><FaHourglassHalf style={{marginRight: '6px'}} /> Saving...</> : status === 'ok' ? <><FaCheck style={{marginRight: '6px'}} /> Saved!</> : status === 'err' ? <><FaTimes style={{marginRight: '6px'}} /> Error</> : <><FaSave style={{marginRight: '6px'}} /> Save Changes</>}
   </button>
 );
 
@@ -71,7 +80,7 @@ function HeroTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">🦸 Hero Section</h3>
+        <h3 className="adm-panel-title"><FaUser style={{marginRight: '10px'}} /> Hero Section</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
@@ -91,7 +100,7 @@ function HeroTab({ portfolio, updatePortfolio }) {
               </div>
             )}
             <label className="adm-upload-btn" htmlFor="profile-upload">
-              {uploadStatus === 'uploading' ? '⏳ Uploading...' : uploadStatus === 'done' ? '✅ Uploaded!' : uploadStatus === 'error' ? '❌ Failed' : '📁 Choose Image File'}
+              {uploadStatus === 'uploading' ? <><FaHourglassHalf style={{marginRight: '6px'}} /> Uploading...</> : uploadStatus === 'done' ? <><FaCheck style={{marginRight: '6px'}} /> Uploaded!</> : uploadStatus === 'error' ? <><FaTimes style={{marginRight: '6px'}} /> Failed</> : <><FaPlus style={{marginRight: '6px'}} /> Choose Image File</>}
               <input
                 id="profile-upload"
                 type="file"
@@ -127,7 +136,7 @@ function AboutTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">🌌 About / Universe</h3>
+        <h3 className="adm-panel-title"><FaInfoCircle style={{marginRight: '10px'}} /> About / Universe</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
@@ -174,7 +183,7 @@ function EducationTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">🎓 Education & Certs</h3>
+        <h3 className="adm-panel-title"><FaGraduationCap style={{marginRight: '10px'}} /> Education & Certs</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <button className="adm-add-btn adm-add-block" onClick={add}>+ Add Entry</button>
@@ -245,7 +254,7 @@ function SkillsTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">⚙️ Tech Arsenal / Skills</h3>
+        <h3 className="adm-panel-title"><FaTools style={{marginRight: '10px'}} /> Tech Arsenal / Skills</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2" style={{ alignItems: 'start' }}>
@@ -293,7 +302,7 @@ function ProjectsTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">🏗️ Featured Projects</h3>
+        <h3 className="adm-panel-title"><FaBriefcase style={{marginRight: '10px'}} /> Featured Projects</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <button className="adm-add-btn adm-add-block" onClick={add}>+ Add Project</button>
@@ -338,7 +347,7 @@ function ContactTab({ portfolio, updatePortfolio }) {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">📡 Contact Info</h3>
+        <h3 className="adm-panel-title"><FaEnvelope style={{marginRight: '10px'}} /> Contact Info</h3>
         <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
@@ -396,8 +405,8 @@ function MessagesTab() {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">✉️ Messages</h3>
-        <button className="adm-upload-btn" onClick={fetchMessages}>🔄 Refresh</button>
+        <h3 className="adm-panel-title"><FaRegEnvelopeOpen style={{marginRight: '10px'}} /> Messages</h3>
+        <button className="adm-upload-btn" onClick={fetchMessages}><FaPlus style={{marginRight: '6px'}} /> Refresh</button>
       </div>
       {messages.length === 0 ? (
         <p style={{ color: '#6B6880' }}>No messages yet.</p>
@@ -414,8 +423,8 @@ function MessagesTab() {
                 {m.message}
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                {!m.read && <button className="adm-add-btn" onClick={() => markRead(m._id)}>✅ Mark Read</button>}
-                <button className="adm-del-btn" onClick={() => deleteMsg(m._id)}>🗑️ Delete</button>
+                {!m.read && <button className="adm-add-btn" onClick={() => markRead(m._id)}><FaCheck style={{marginRight: '6px'}} /> Mark Read</button>}
+                <button className="adm-del-btn" onClick={() => deleteMsg(m._id)}><FaTrash style={{marginRight: '6px'}} /> Delete</button>
               </div>
             </div>
           ))}
@@ -459,7 +468,7 @@ function SettingsTab() {
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title">🔒 Security Settings</h3>
+        <h3 className="adm-panel-title"><FaLock style={{marginRight: '10px'}} /> Security Settings</h3>
       </div>
       <form onSubmit={handleChangePassword} className="adm-card-row">
         <div className="adm-grid-2">
@@ -520,7 +529,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="adm-sidebar">
         <div className="adm-sidebar-brand">
-          <span className="adm-brand-icon">⚡</span>
+          <span className="adm-brand-icon"><FaBolt /></span>
           <div>
             <div className="adm-brand-name">{portfolio.hero.name || 'Portfolio'}</div>
             <div className="adm-brand-sub">Admin Panel</div>
@@ -541,8 +550,8 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="adm-sidebar-footer">
-          <a href="/" className="adm-view-site" target="_blank" rel="noopener noreferrer">👁 View Site</a>
-          <button className="adm-logout-btn" onClick={logout}>🚪 Logout</button>
+          <a href="/" className="adm-view-site" target="_blank" rel="noopener noreferrer"><FaEye style={{marginRight: '6px'}} /> View Site</a>
+          <button className="adm-logout-btn" onClick={logout}><FaSignOutAlt style={{marginRight: '6px'}} /> Logout</button>
         </div>
       </aside>
 

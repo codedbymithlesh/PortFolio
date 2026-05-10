@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaBolt, FaPuzzlePiece, FaYoutube, FaGamepad } from 'react-icons/fa';
+import { FaBolt, FaPuzzlePiece, FaYoutube, FaGamepad, FaBullseye } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
 const ICON_MAP = {
@@ -23,7 +23,7 @@ const MyUniverse = () => {
           <p className="card-text">{about.professionalSummary}</p>
           <div className="divider"></div>
           <div className="icon-quote">
-            <span className="quote-icon">🎯</span>
+            <span className="quote-icon"><FaBullseye /></span>
             <p className="quote-text">{about.quote}</p>
           </div>
         </div>
