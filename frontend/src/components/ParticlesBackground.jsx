@@ -15,7 +15,7 @@ const ParticlesBackground = () => {
           value: 'transparent',
         },
       },
-      fpsLimit: 120,
+      fpsLimit: 60,
       interactivity: {
         events: {
           onClick: {
@@ -23,8 +23,8 @@ const ParticlesBackground = () => {
             mode: 'push',
           },
           onHover: {
-            enable: true,
-            mode: 'bubble', // Makes them grow when hovered
+            enable: window.innerWidth > 768, // Disable hover effect on touch devices
+            mode: 'bubble',
           },
         },
         modes: {
@@ -33,7 +33,7 @@ const ParticlesBackground = () => {
           },
           bubble: {
             distance: 200,
-            size: 20,
+            size: 15,
             duration: 2,
             opacity: 0.8,
           },
@@ -41,7 +41,7 @@ const ParticlesBackground = () => {
       },
       particles: {
         color: {
-          value: ['#08D7FB', '#2AA9F2', '#635EEA'], // Neon Blue, Bright Blue, Purple Accent
+          value: ['#08D7FB', '#2AA9F2', '#635EEA'],
         },
         links: {
           enable: false, 
@@ -53,15 +53,15 @@ const ParticlesBackground = () => {
             default: 'bounce',
           },
           random: false,
-          speed: 0.8,
+          speed: 0.6, // Slower speed = less CPU
           straight: false,
         },
         number: {
           density: {
             enable: true,
-            area: 800,
+            area: 1200, // Increase area = fewer particles per pixel
           },
-          value: 35, // Far fewer particles
+          value: window.innerWidth > 768 ? 30 : 15, // Fewer on mobile
         },
         opacity: {
           value: 0.2,
@@ -70,15 +70,15 @@ const ParticlesBackground = () => {
           type: ['circle', 'triangle', 'polygon'],
           options: {
             polygon: {
-              sides: 6 // Hexagons
+              sides: 6
             }
           }
         },
         size: {
-          value: { min: 4, max: 12 }, // Much larger shapes
+          value: { min: 4, max: 10 },
         },
       },
-      detectRetina: true,
+      detectRetina: false, // Save 2x processing
       style: {
         position: 'fixed',
         zIndex: -1,

@@ -10,7 +10,7 @@ const Hero = () => {
       <div className="profile-container">
         <div className="profile-glow"></div>
         <div className="profile-image">
-          <img src={hero.profileImage} alt={hero.name} />
+          <img src={hero.profileImage} alt={hero.name} loading="lazy" decoding="async" />
         </div>
       </div>
 
