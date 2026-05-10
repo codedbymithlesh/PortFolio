@@ -49,7 +49,7 @@ function HeroTab({ portfolio, updatePortfolio }) {
     formData.append('image', file);
     try {
       const token = localStorage.getItem('admin_token');
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const baseUrl = 'https://port-folio-backend-file.vercel.app';
       const res = await fetch(`${baseUrl}/api/upload/profile`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -361,7 +361,7 @@ function MessagesTab() {
   }, []);
 
   const fetchMessages = async () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const baseUrl = 'https://port-folio-backend-file.vercel.app';
     try {
       const res = await fetch(`${baseUrl}/api/messages`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }
@@ -373,7 +373,7 @@ function MessagesTab() {
   };
 
   const markRead = async (id) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const baseUrl = 'https://port-folio-backend-file.vercel.app';
     await fetch(`${baseUrl}/api/messages/${id}/read`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }
@@ -383,7 +383,7 @@ function MessagesTab() {
 
   const deleteMsg = async (id) => {
     if (!window.confirm('Delete this message?')) return;
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const baseUrl = 'https://port-folio-backend-file.vercel.app';
     await fetch(`${baseUrl}/api/messages/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }
@@ -433,7 +433,7 @@ function SettingsTab() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setStatus({ loading: true, msg: '', type: '' });
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const baseUrl = 'https://port-folio-backend-file.vercel.app';
     try {
       const res = await fetch(`${baseUrl}/api/auth/change-password`, {
         method: 'PUT',

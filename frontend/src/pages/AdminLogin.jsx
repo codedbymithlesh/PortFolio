@@ -13,7 +13,7 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const baseUrl = 'https://port-folio-backend-file.vercel.app';
       const res = await fetch(`${baseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
