@@ -31,7 +31,7 @@ const FeaturedBuilds = () => {
       
       {hasMore && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
-          <Link to="/projects" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Link to="/all-projects" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
             View All Projects <FaArrowRight />
           </Link>
         </div>
