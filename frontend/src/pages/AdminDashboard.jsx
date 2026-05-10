@@ -25,13 +25,13 @@ const Field = ({ label, value, onChange, textarea, type = 'text' }) => (
 );
 
 /* ── Save button with feedback ── */
-const SaveBtn = ({ onClick, status }) => (
-  <button className={`adm-save-btn ${status}`} onClick={onClick}>
-    {status === 'saving' ? <><FaHourglassHalf style={{marginRight: '6px'}} /> Saving...</> : status === 'ok' ? <><FaCheck style={{marginRight: '6px'}} /> Saved!</> : status === 'err' ? <><FaTimes style={{marginRight: '6px'}} /> Error</> : <><FaSave style={{marginRight: '6px'}} /> Save Changes</>}
+const SaveBtn = ({ onClick, status, isDirty }) => (
+  <button className={`adm-save-btn ${status} ${isDirty && !status ? 'dirty' : ''}`} onClick={onClick}>
+    {status === 'saving' ? <><FaHourglassHalf style={{marginRight: '6px'}} /> Saving...</> : status === 'ok' ? <><FaCheck style={{marginRight: '6px'}} /> Saved!</> : status === 'err' ? <><FaTimes style={{marginRight: '6px'}} /> Error</> : <><FaSave style={{marginRight: '6px'}} /> Save Changes {isDirty && <span className="adm-dirty-dot"></span>}</>}
   </button>
 );
 
-function useSave(section, value, updatePortfolio, setGlobalSave) {
+function useSave(section, value, updatePortfolio, setGlobalSave, isDirty) {
   const [status, setStatus] = useState('');
   
   const save = useCallback(async () => {
@@ -43,8 +43,8 @@ function useSave(section, value, updatePortfolio, setGlobalSave) {
   }, [section, value, updatePortfolio]);
 
   useEffect(() => {
-    setGlobalSave(save, status);
-  }, [save, status, setGlobalSave]);
+    setGlobalSave(save, status, isDirty);
+  }, [save, status, setGlobalSave, isDirty]);
 
   return [status, save];
 }
@@ -53,7 +53,8 @@ function useSave(section, value, updatePortfolio, setGlobalSave) {
 
 function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [hero, setHero] = useState({ ...portfolio.hero });
-  const [status, save] = useSave('hero', hero, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(hero) !== JSON.stringify(portfolio.hero);
+  const [status, save] = useSave('hero', hero, updatePortfolio, setGlobalSave, isDirty);
   const [uploadStatus, setUploadStatus] = useState('');
   const set = (k) => (v) => setHero((h) => ({ ...h, [k]: v }));
 
@@ -125,7 +126,8 @@ function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
 
 function AboutTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [about, setAbout] = useState({ ...portfolio.about, badges: [...(portfolio.about.badges || [])] });
-  const [status, save] = useSave('about', about, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(about) !== JSON.stringify(portfolio.about);
+  const [status, save] = useSave('about', about, updatePortfolio, setGlobalSave, isDirty);
   const set = (k) => (v) => setAbout((a) => ({ ...a, [k]: v }));
 
   const updateBadge = (i, field, val) => {
@@ -176,7 +178,8 @@ function AboutTab({ portfolio, updatePortfolio, setGlobalSave }) {
 
 function EducationTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [edu, setEdu] = useState(portfolio.education.map((e) => ({ ...e })));
-  const [status, save] = useSave('education', edu, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(edu) !== JSON.stringify(portfolio.education);
+  const [status, save] = useSave('education', edu, updatePortfolio, setGlobalSave, isDirty);
 
   const update = (i, field, val) => {
     const next = [...edu];
@@ -234,7 +237,8 @@ function SkillsTab({ portfolio, updatePortfolio, setGlobalSave }) {
     backend: [...(portfolio.skills.backend || [])],
     tools: [...(portfolio.skills.tools || [])],
   });
-  const [status, save] = useSave('skills', skills, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(skills) !== JSON.stringify(portfolio.skills);
+  const [status, save] = useSave('skills', skills, updatePortfolio, setGlobalSave, isDirty);
 
   const SkillList = ({ category, label }) => {
     const list = skills[category];
@@ -283,7 +287,8 @@ function SkillsTab({ portfolio, updatePortfolio, setGlobalSave }) {
 
 function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [projects, setProjects] = useState(portfolio.projects.map((p) => ({ ...p, tech: [...(p.tech || [])] })));
-  const [status, save] = useSave('projects', projects, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(projects) !== JSON.stringify(portfolio.projects);
+  const [status, save] = useSave('projects', projects, updatePortfolio, setGlobalSave, isDirty);
 
   const update = (i, field, val) => {
     const next = [...projects];
@@ -359,7 +364,8 @@ function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
 
 function ContactTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [contact, setContact] = useState({ ...portfolio.contact });
-  const [status, save] = useSave('contact', contact, updatePortfolio, setGlobalSave);
+  const isDirty = JSON.stringify(contact) !== JSON.stringify(portfolio.contact);
+  const [status, save] = useSave('contact', contact, updatePortfolio, setGlobalSave, isDirty);
   const set = (k) => (v) => setContact((c) => ({ ...c, [k]: v }));
 
   return (
@@ -515,10 +521,12 @@ export default function AdminDashboard() {
 
   const saveRef = useRef(null);
   const [globalSaveStatus, setGlobalSaveStatus] = useState('');
+  const [globalIsDirty, setGlobalIsDirty] = useState(false);
 
-  const setGlobalSave = useCallback((func, status) => {
+  const setGlobalSave = useCallback((func, status, isDirty) => {
     saveRef.current = func;
     setGlobalSaveStatus(status);
+    setGlobalIsDirty(isDirty);
   }, []);
 
   const handleGlobalSave = () => {
@@ -528,15 +536,14 @@ export default function AdminDashboard() {
   // Refresh confirmation
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // If we are in a tab that has a save function, warn the user
-      if (activeTab < 6) {
+      if (globalIsDirty) {
         e.preventDefault();
         e.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [activeTab]);
+  }, [globalIsDirty]);
 
   useEffect(() => {
     document.title = 'Admin Dashboard | Portfolio Control';
@@ -621,7 +628,7 @@ export default function AdminDashboard() {
           
           {showSaveBtn && (
             <div className="adm-header-actions">
-              <SaveBtn onClick={handleGlobalSave} status={globalSaveStatus} />
+              <SaveBtn onClick={handleGlobalSave} status={globalSaveStatus} isDirty={globalIsDirty} />
             </div>
           )}
         </div>
