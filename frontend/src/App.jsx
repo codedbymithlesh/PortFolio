@@ -1,11 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { FaWifi, FaRedo } from 'react-icons/fa';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Projects from './pages/Projects';
+import NotFound from './pages/NotFound';
 
 import ParticlesBackground from './components/ParticlesBackground';
 import Navbar from './components/Navbar';
@@ -20,7 +22,7 @@ import Preloader from './components/Preloader';
 import './admin.css';
 
 function Portfolio() {
-  const { portfolio, loading } = usePortfolio();
+  const { portfolio, loading, error } = usePortfolio();
 
   React.useEffect(() => {
     if (portfolio.hero.name) {
@@ -29,6 +31,19 @@ function Portfolio() {
       document.title = 'My Portfolio';
     }
   }, [portfolio.hero.name]);
+
+  if (error) {
+    return (
+      <div className="error-screen">
+        <FaWifi className="error-icon" />
+        <h2 className="error-title">Connection Error</h2>
+        <p className="error-text">{error}</p>
+        <button className="btn-primary" onClick={() => window.location.reload()}>
+          <FaRedo style={{marginRight: '8px'}} /> Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -72,6 +87,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </PortfolioProvider>
     </Router>

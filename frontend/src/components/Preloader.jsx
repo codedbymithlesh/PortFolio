@@ -22,7 +22,7 @@ const Preloader = ({ loading }) => {
         <div className="loader-circle"></div>
         <div className="loader-circle"></div>
       </div>
-      <div className="loader-text">Loading Universe</div>
+      <div className="loader-text">Loading...</div>
     </div>
   );
 };

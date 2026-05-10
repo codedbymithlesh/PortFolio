@@ -33,15 +33,16 @@ const connectDB = async () => {
   if (cachedDb && mongoose.connection.readyState === 1) return;
 
   console.log('🔄 Connecting to MongoDB...');
+  console.log('Connecting to MongoDB...');
   try {
     const mongoOpts = {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     };
     cachedDb = await mongoose.connect(process.env.MONGO_URL, mongoOpts);
-    console.log('✅ Connected to MongoDB Atlas');
+    console.log('MongoDB Connected!');
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
+    console.error('MongoDB connection error:', err.message);
   }
 };
 
@@ -59,7 +60,7 @@ try {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 } catch (err) {
-  console.warn('⚠️ Warning: Could not create uploads directory:', err.message);
+  console.warn('Warning: Could not create uploads directory:', err.message);
 }
 app.use('/uploads', express.static(uploadsDir));
 
@@ -71,14 +72,14 @@ app.use('/api/messages', messagesRoutes);
 
 // Health check
 app.get('/', (req, res) => res.json({ 
-  status: 'Portfolio API running 🚀',
+  status: 'Portfolio API running',
   environment: process.env.NODE_ENV || 'development',
   mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
 }));
 
 // Start server only if not in production (Vercel handles the export)
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 module.exports = app;

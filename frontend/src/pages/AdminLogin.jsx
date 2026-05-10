@@ -35,7 +35,7 @@ export default function AdminLogin() {
           localStorage.setItem('admin_token', data.token);
           navigate('/admin');
         } else if (res.status === 401) {
-          setError('❌ Wrong password');
+          setError('Wrong password');
         } else {
           setError(data.message || 'Login failed');
         }
@@ -50,11 +50,11 @@ export default function AdminLogin() {
           });
           const data = await res.json();
           if (res.ok) {
-            setSuccess('✅ ' + data.message);
+            setSuccess(data.message);
             setRecoveryStep(2);
           } else {
             const detail = data.error ? `: ${data.error}` : '';
-            setError('❌ ' + (data.message || 'Failed to send OTP') + detail);
+            setError((data.message || 'Failed to send OTP') + detail);
           }
         } else {
           // Verify OTP & Reset
@@ -65,19 +65,19 @@ export default function AdminLogin() {
           });
           const data = await res.json();
           if (res.ok) {
-            setSuccess('✅ ' + data.message);
+            setSuccess(data.message);
             setMode('login');
             setRecoveryStep(1);
             setRecoveryEmail('');
             setOtp('');
             setNewPassword('');
           } else {
-            setError('❌ ' + (data.message || 'Verification failed'));
+            setError(data.message || 'Verification failed');
           }
         }
       }
     } catch {
-      setError('⚠️ Cannot connect to server. Check your internet or backend status.');
+      setError('Cannot connect to server. Check your internet or backend status.');
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,7 @@ export default function AdminLogin() {
           <button type="submit" className="admin-login-btn" disabled={loading} style={{marginTop: '1.5rem'}}>
             {loading ? <span className="admin-spinner"></span> : (
               mode === 'login' ? <><FaUnlock style={{marginRight: '8px'}} /> Enter Dashboard</> : 
-              recoveryStep === 1 ? '🚀 Send OTP' : '🔄 Verify & Reset'
+              recoveryStep === 1 ? 'Send OTP' : 'Verify & Reset'
             )}
           </button>
         </form>

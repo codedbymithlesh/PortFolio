@@ -35,10 +35,14 @@ const emptyData = {
 export function PortfolioProvider({ children }) {
   const [portfolio, setPortfolio] = useState(emptyData);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/portfolio`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Server error');
+        return r.json();
+      })
       .then((data) => {
         if (data && data._id) {
           setPortfolio({
@@ -55,8 +59,9 @@ export function PortfolioProvider({ children }) {
           });
         }
       })
-      .catch(() => {
-        console.error('Failed to fetch portfolio data');
+      .catch((err) => {
+        console.error('Failed to fetch portfolio data', err);
+        setError('Please check your internet connection or try again later.');
       })
       .finally(() => setLoading(false));
   }, []);
@@ -78,7 +83,7 @@ export function PortfolioProvider({ children }) {
   };
 
   return (
-    <PortfolioContext.Provider value={{ portfolio, loading, updatePortfolio, API }}>
+    <PortfolioContext.Provider value={{ portfolio, loading, error, updatePortfolio, API }}>
       {children}
     </PortfolioContext.Provider>
   );
