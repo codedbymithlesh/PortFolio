@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaUser, FaInfoCircle, FaGraduationCap, FaTools, 
   FaBriefcase, FaEnvelope, FaLock, FaBolt, 
   FaEye, FaSignOutAlt, FaPlus, FaTrash, 
-  FaSave, FaRegEnvelopeOpen, FaCog, FaHourglassHalf, FaCheck, FaTimes
+  FaSave, FaRegEnvelopeOpen, FaCog, FaHourglassHalf, FaCheck, FaTimes, FaBars
 } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
@@ -31,22 +31,29 @@ const SaveBtn = ({ onClick, status }) => (
   </button>
 );
 
-function useSave(section, value, updatePortfolio) {
+function useSave(section, value, updatePortfolio, setGlobalSave) {
   const [status, setStatus] = useState('');
+  
   const save = async () => {
     setStatus('saving');
     const ok = await updatePortfolio(section, value);
     setStatus(ok ? 'ok' : 'err');
     setTimeout(() => setStatus(''), 2500);
+    return ok;
   };
+
+  useEffect(() => {
+    setGlobalSave(() => save, status);
+  }, [value, status]);
+
   return [status, save];
 }
 
 /* ══════════════════════ TAB PANELS ══════════════════════ */
 
-function HeroTab({ portfolio, updatePortfolio }) {
+function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [hero, setHero] = useState({ ...portfolio.hero });
-  const [status, save] = useSave('hero', hero, updatePortfolio);
+  const [status, save] = useSave('hero', hero, updatePortfolio, setGlobalSave);
   const [uploadStatus, setUploadStatus] = useState('');
   const set = (k) => (v) => setHero((h) => ({ ...h, [k]: v }));
 
@@ -81,7 +88,6 @@ function HeroTab({ portfolio, updatePortfolio }) {
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaUser style={{marginRight: '10px'}} /> Hero Section</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
@@ -117,9 +123,9 @@ function HeroTab({ portfolio, updatePortfolio }) {
   );
 }
 
-function AboutTab({ portfolio, updatePortfolio }) {
+function AboutTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [about, setAbout] = useState({ ...portfolio.about, badges: [...(portfolio.about.badges || [])] });
-  const [status, save] = useSave('about', about, updatePortfolio);
+  const [status, save] = useSave('about', about, updatePortfolio, setGlobalSave);
   const set = (k) => (v) => setAbout((a) => ({ ...a, [k]: v }));
 
   const updateBadge = (i, field, val) => {
@@ -127,7 +133,11 @@ function AboutTab({ portfolio, updatePortfolio }) {
     badges[i] = { ...badges[i], [field]: val };
     setAbout((a) => ({ ...a, badges }));
   };
-  const addBadge = () => setAbout((a) => ({ ...a, badges: [...a.badges, { label: 'New Badge', type: 'orange' }] }));
+  const scrollRef = useRef(null);
+  const addBadge = () => {
+    setAbout((a) => ({ ...a, badges: [...a.badges, { label: 'New Badge', type: 'orange' }] }));
+    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+  };
   const removeBadge = (i) => {
     if (!window.confirm('Are you sure you want to delete this badge?')) return;
     setAbout((a) => ({ ...a, badges: a.badges.filter((_, idx) => idx !== i) }));
@@ -137,7 +147,6 @@ function AboutTab({ portfolio, updatePortfolio }) {
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaInfoCircle style={{marginRight: '10px'}} /> About / Universe</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
         <Field label="Professional Summary" value={about.professionalSummary} onChange={set('professionalSummary')} textarea />
@@ -148,7 +157,7 @@ function AboutTab({ portfolio, updatePortfolio }) {
           <span>Badges</span>
           <button className="adm-add-btn" onClick={addBadge}>+ Add Badge</button>
         </div>
-        <div className="adm-pills-edit">
+        <div className="adm-pills-edit" ref={scrollRef}>
           {(about.badges || []).map((b, i) => (
             <div key={i} className="adm-array-row">
               <input className="adm-input" value={b.label} onChange={(e) => updateBadge(i, 'label', e.target.value)} placeholder="Badge label" />
@@ -165,26 +174,29 @@ function AboutTab({ portfolio, updatePortfolio }) {
   );
 }
 
-function EducationTab({ portfolio, updatePortfolio }) {
-  const [edu, setEdu] = useState([...portfolio.education]);
-  const [status, save] = useSave('education', edu, updatePortfolio);
+function EducationTab({ portfolio, updatePortfolio, setGlobalSave }) {
+  const [edu, setEdu] = useState(portfolio.education.map((e) => ({ ...e })));
+  const [status, save] = useSave('education', edu, updatePortfolio, setGlobalSave);
 
   const update = (i, field, val) => {
     const next = [...edu];
     next[i] = { ...next[i], [field]: val };
     setEdu(next);
   };
-  const add = () => setEdu((e) => [...e, { year: '', title: '', description: '', dotColor: 'blue' }]);
+  const scrollRef = useRef(null);
+  const add = () => {
+    setEdu((e) => [...e, { year: '', title: '', description: '', dotColor: 'blue' }]);
+    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+  };
   const remove = (i) => {
     if (!window.confirm('Are you sure you want to delete this entry?')) return;
     setEdu((e) => e.filter((_, idx) => idx !== i));
   };
 
   return (
-    <div className="adm-tab-panel">
+    <div className="adm-tab-panel" ref={scrollRef}>
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaGraduationCap style={{marginRight: '10px'}} /> Education & Certs</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <button className="adm-add-btn adm-add-block" onClick={add}>+ Add Entry</button>
       <div className="adm-grid-2" style={{ alignItems: 'start' }}>
@@ -216,18 +228,22 @@ function EducationTab({ portfolio, updatePortfolio }) {
   );
 }
 
-function SkillsTab({ portfolio, updatePortfolio }) {
+function SkillsTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [skills, setSkills] = useState({
     frontend: [...(portfolio.skills.frontend || [])],
     backend: [...(portfolio.skills.backend || [])],
     tools: [...(portfolio.skills.tools || [])],
   });
-  const [status, save] = useSave('skills', skills, updatePortfolio);
+  const [status, save] = useSave('skills', skills, updatePortfolio, setGlobalSave);
 
   const SkillList = ({ category, label }) => {
     const list = skills[category];
     const update = (i, v) => setSkills((s) => { const next = [...s[category]]; next[i] = v; return { ...s, [category]: next }; });
-    const add = () => setSkills((s) => ({ ...s, [category]: [...s[category], ''] }));
+    const scrollRef = useRef(null);
+    const add = () => {
+      setSkills((s) => ({ ...s, [category]: [...s[category], ''] }));
+      setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+    };
     const remove = (i) => {
       if (!window.confirm('Are you sure you want to delete this skill?')) return;
       setSkills((s) => ({ ...s, [category]: s[category].filter((_, idx) => idx !== i) }));
@@ -239,7 +255,7 @@ function SkillsTab({ portfolio, updatePortfolio }) {
           <span>{label}</span>
           <button className="adm-add-btn" onClick={add}>+ Add</button>
         </div>
-        <div className="adm-pills-edit">
+        <div className="adm-pills-edit" ref={scrollRef}>
           {list.map((s, i) => (
             <div key={i} className="adm-pill-row">
               <input className="adm-input" value={s} onChange={(e) => update(i, e.target.value)} />
@@ -255,7 +271,6 @@ function SkillsTab({ portfolio, updatePortfolio }) {
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaTools style={{marginRight: '10px'}} /> Tech Arsenal / Skills</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2" style={{ alignItems: 'start' }}>
         <SkillList category="frontend" label="Frontend" />
@@ -266,9 +281,9 @@ function SkillsTab({ portfolio, updatePortfolio }) {
   );
 }
 
-function ProjectsTab({ portfolio, updatePortfolio }) {
+function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [projects, setProjects] = useState(portfolio.projects.map((p) => ({ ...p, tech: [...(p.tech || [])] })));
-  const [status, save] = useSave('projects', projects, updatePortfolio);
+  const [status, save] = useSave('projects', projects, updatePortfolio, setGlobalSave);
 
   const update = (i, field, val) => {
     const next = [...projects];
@@ -293,17 +308,20 @@ function ProjectsTab({ portfolio, updatePortfolio }) {
     next[pi] = { ...next[pi], tech: next[pi].tech.filter((_, idx) => idx !== ti) };
     setProjects(next);
   };
-  const add = () => setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#', linkLabel: 'View Page' }]);
+  const scrollRef = useRef(null);
+  const add = () => {
+    setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#', linkLabel: 'View Page' }]);
+    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+  };
   const remove = (i) => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
     setProjects((p) => p.filter((_, idx) => idx !== i));
   };
 
   return (
-    <div className="adm-tab-panel">
+    <div className="adm-tab-panel" ref={scrollRef}>
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaBriefcase style={{marginRight: '10px'}} /> Featured Projects</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <button className="adm-add-btn adm-add-block" onClick={add}>+ Add Project</button>
       <div className="adm-grid-2" style={{ alignItems: 'start' }}>
@@ -339,16 +357,15 @@ function ProjectsTab({ portfolio, updatePortfolio }) {
   );
 }
 
-function ContactTab({ portfolio, updatePortfolio }) {
+function ContactTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [contact, setContact] = useState({ ...portfolio.contact });
-  const [status, save] = useSave('contact', contact, updatePortfolio);
+  const [status, save] = useSave('contact', contact, updatePortfolio, setGlobalSave);
   const set = (k) => (v) => setContact((c) => ({ ...c, [k]: v }));
 
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
         <h3 className="adm-panel-title"><FaEnvelope style={{marginRight: '10px'}} /> Contact Info</h3>
-        <SaveBtn onClick={save} status={status} />
       </div>
       <div className="adm-grid-2">
         <Field label="Email Address" value={contact.email} onChange={set('email')} type="email" />
@@ -494,10 +511,35 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState(0);
   const { portfolio, loading, updatePortfolio } = usePortfolio();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Global Save State
+  const [globalSaveFunc, setGlobalSaveFunc] = useState(null);
+  const [globalSaveStatus, setGlobalSaveStatus] = useState('');
+
+  const setGlobalSave = (func, status) => {
+    setGlobalSaveFunc(() => func);
+    setGlobalSaveStatus(status);
+  };
+
+  // Refresh confirmation
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // If we are in a tab that has a save function, warn the user
+      if (activeTab < 6) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [activeTab]);
 
   useEffect(() => {
     document.title = 'Admin Dashboard | Portfolio Control';
-  }, []);
+    const token = localStorage.getItem('admin_token');
+    if (!token) navigate('/admin/login');
+  }, [navigate]);
 
   const logout = () => {
     localStorage.removeItem('admin_token');
@@ -514,26 +556,30 @@ export default function AdminDashboard() {
   }
 
   const panels = [
-    <HeroTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
-    <AboutTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
-    <EducationTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
-    <SkillsTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
-    <ProjectsTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
-    <ContactTab portfolio={portfolio} updatePortfolio={updatePortfolio} />,
+    <HeroTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
+    <AboutTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
+    <EducationTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
+    <SkillsTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
+    <ProjectsTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
+    <ContactTab portfolio={portfolio} updatePortfolio={updatePortfolio} setGlobalSave={setGlobalSave} />,
     <MessagesTab />,
     <SettingsTab />,
   ];
 
+  const showSaveBtn = activeTab < 6;
+
   return (
-    <div className="adm-root">
-      {/* Sidebar */}
-      <aside className="adm-sidebar">
+    <div className={`adm-root ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      {sidebarOpen && <div className="adm-sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>}
+
+      <aside className={`adm-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="adm-sidebar-brand">
           <span className="adm-brand-icon"><FaBolt /></span>
           <div>
             <div className="adm-brand-name">{portfolio.hero.name || 'Portfolio'}</div>
             <div className="adm-brand-sub">Admin Panel</div>
           </div>
+          <button className="adm-sidebar-close" onClick={() => setSidebarOpen(false)}><FaTimes /></button>
         </div>
 
         <nav className="adm-nav">
@@ -541,7 +587,10 @@ export default function AdminDashboard() {
             <button
               key={tab}
               className={`adm-nav-item ${activeTab === i ? 'active' : ''}`}
-              onClick={() => setActiveTab(i)}
+              onClick={() => {
+                setActiveTab(i);
+                setSidebarOpen(false);
+              }}
             >
               <span className="adm-nav-icon">{TAB_ICONS[i]}</span>
               <span>{tab}</span>
@@ -550,18 +599,28 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="adm-sidebar-footer">
-          <a href="/" className="adm-view-site" target="_blank" rel="noopener noreferrer"><FaEye style={{marginRight: '6px'}} /> View Site</a>
-          <button className="adm-logout-btn" onClick={logout}><FaSignOutAlt style={{marginRight: '6px'}} /> Logout</button>
+          <a href="/" className="adm-view-site" target="_blank" rel="noopener noreferrer"><FaEye style={{marginRight: '6px'}} /> <span>View Site</span></a>
+          <button className="adm-logout-btn" onClick={logout}><FaSignOutAlt style={{marginRight: '6px'}} /> <span>Logout</span></button>
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="adm-main">
         <div className="adm-main-header">
-          <div>
-            <h2 className="adm-main-title">Editing: {TABS[activeTab]}</h2>
-            <p className="adm-main-sub">Manage your portfolio details and messages</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
+            <button className="adm-hamburger" onClick={() => setSidebarOpen(true)}>
+              <FaBars />
+            </button>
+            <div>
+              <h2 className="adm-main-title">{TABS[activeTab]}</h2>
+              <p className="adm-main-sub">Manage your portfolio details</p>
+            </div>
           </div>
+          
+          {showSaveBtn && (
+            <div className="adm-header-actions">
+              <SaveBtn onClick={globalSaveFunc} status={globalSaveStatus} />
+            </div>
+          )}
         </div>
 
         <div className="adm-content">
