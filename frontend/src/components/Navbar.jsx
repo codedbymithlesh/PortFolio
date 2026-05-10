@@ -11,7 +11,7 @@ const Navbar = () => {
   };
 
   // Extract name for logo, fallback to "portfolio" if empty
-  const displayName = hero.name ? hero.name.split(' ')[0].toLowerCase() : 'portfolio';
+  const displayName = hero.name ? hero.name.split(' ')[0].toLowerCase() : 'Mithlesh';
 
   return (
     <nav className="navbar">
