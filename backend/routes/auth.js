@@ -125,8 +125,12 @@ router.post('/request-otp', async (req, res) => {
 
     res.json({ message: 'OTP sent to your email successfully.' });
   } catch (err) {
-    console.error('❌ OTP Error:', err.message);
-    res.status(500).json({ message: 'Failed to send OTP. Check your email configuration.' });
+    console.error('❌ Nodemailer Error:', err);
+    res.status(500).json({ 
+      message: 'Failed to send OTP.', 
+      error: err.message,
+      tip: 'Ensure EMAIL_USER and EMAIL_PASS (App Password) are correct in Vercel settings.'
+    });
   }
 });
 
