@@ -21,36 +21,36 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({ 
-  origin: '*', // You can restrict this later, but leave it open while debugging Vercel
+  origin: true, // This allows any origin that makes the request, compatible with credentials
   credentials: true
 }));
 app.use(express.json());
 
-// --- 🛠️ THE VERCEL FIX: Serverless DB Connection Middleware ---
-let isConnected = false; // Global cache for serverless environments
+// --- 🛠️ THE VERCEL FIX: Serverless DB Connection ---
+let cachedDb = null;
 
 const connectDB = async () => {
-  if (isConnected) return; // Use existing connection if it exists
+  if (cachedDb && mongoose.connection.readyState === 1) return;
 
+  console.log('🔄 Connecting to MongoDB...');
   try {
     const mongoOpts = {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     };
-    const db = await mongoose.connect(process.env.MONGO_URL, mongoOpts);
-    isConnected = db.connections[0].readyState === 1;
+    cachedDb = await mongoose.connect(process.env.MONGO_URL, mongoOpts);
     console.log('✅ Connected to MongoDB Atlas');
   } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
   }
 };
 
-// Force connection before processing any requests
+// Middleware to ensure DB is connected
 app.use(async (req, res, next) => {
   await connectDB();
   next();
 });
-// --------------------------------------------------------------
+// --------------------------------------------------
 
 // Ensure uploads folder exists (Read-only on Vercel, but prevents crashes)
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -73,7 +73,7 @@ app.use('/api/messages', messagesRoutes);
 app.get('/', (req, res) => res.json({ 
   status: 'Portfolio API running 🚀',
   environment: process.env.NODE_ENV || 'development',
-  mongodb: isConnected ? 'connected' : 'disconnected'
+  mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
 }));
 
 // Start server only if not in production (Vercel handles the export)
