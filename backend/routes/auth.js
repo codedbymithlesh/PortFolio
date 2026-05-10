@@ -67,35 +67,101 @@ router.put('/change-password', auth, async (req, res) => {
   }
 });
 
-// POST /api/auth/recover — Recover password using a Master Recovery Key
-router.post('/recover', async (req, res) => {
-  const { recoveryKey, newPassword } = req.body;
+const OTP = require('../models/OTP');
+const nodemailer = require('nodemailer');
+
+// ... existing auth middleware ...
+
+// POST /api/auth/request-otp — Generate and send OTP to Email
+router.post('/request-otp', async (req, res) => {
+  const { email, phone } = req.body;
   
-  if (!recoveryKey || !newPassword) {
-    return res.status(400).json({ message: 'Recovery key and new password are required' });
+  if (!email || !phone) {
+    return res.status(400).json({ message: 'Email and phone are required' });
   }
 
-  // Ensure recovery key is set in .env and matches
-  const masterKey = process.env.RECOVERY_KEY;
-  if (!masterKey || recoveryKey !== masterKey) {
-    return res.status(401).json({ message: 'Invalid recovery key' });
+  // Verify details against .env
+  const masterEmail = process.env.RECOVERY_EMAIL;
+  const masterPhone = process.env.RECOVERY_PHONE;
+
+  if (!masterEmail || !masterPhone) {
+    return res.status(500).json({ message: 'Recovery details not configured in .env' });
   }
 
-  if (newPassword.length < 8) {
-    return res.status(400).json({ message: 'New password must be at least 8 characters' });
+  if (email.trim().toLowerCase() !== masterEmail.trim().toLowerCase() || phone.trim() !== masterPhone.trim()) {
+    return res.status(401).json({ message: 'Verification details do not match' });
+  }
+
+  // Generate 6-digit OTP
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+  try {
+    // Save to DB (overwrites old OTP for this email)
+    await OTP.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { otp: otpCode, createdAt: new Date() },
+      { upsert: true }
+    );
+
+    // Send Email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // App Password
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your Portfolio Admin OTP',
+      text: `Your OTP for password reset is: ${otpCode}. It expires in 5 minutes.`,
+      html: `<h3>Portfolio Admin Recovery</h3><p>Your OTP is: <b style="font-size: 24px; color: #22d3ee;">${otpCode}</b></p><p>This code expires in 5 minutes.</p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ OTP ${otpCode} sent to ${email}`);
+
+    res.json({ message: 'OTP sent to your email successfully.' });
+  } catch (err) {
+    console.error('❌ OTP Error:', err.message);
+    res.status(500).json({ message: 'Failed to send OTP. Check your email configuration.' });
+  }
+});
+
+// POST /api/auth/verify-otp — Verify OTP and reset password
+router.post('/verify-otp', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
+    const record = await OTP.findOne({ email: email.toLowerCase(), otp });
+    if (!record) {
+      return res.status(401).json({ message: 'Invalid or expired OTP' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'New password must be at least 8 characters' });
+    }
+
     const hash = await bcrypt.hash(newPassword, 12);
     await Settings.findOneAndUpdate(
       { key: 'admin_password_hash' },
       { key: 'admin_password_hash', value: hash },
-      { upsert: true, new: true }
+      { upsert: true }
     );
-    res.json({ message: 'Password reset successful. You can now login with your new password.' });
+
+    // Delete OTP after successful use
+    await OTP.deleteOne({ _id: record._id });
+
+    res.json({ message: 'Password reset successful! You can now login.' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error during verification' });
   }
 });
 

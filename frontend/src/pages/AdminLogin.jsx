@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBolt, FaEye, FaEyeSlash, FaUnlock, FaArrowLeft, FaKey, FaShieldAlt } from 'react-icons/fa';
+import { FaBolt, FaEye, FaEyeSlash, FaUnlock, FaArrowLeft, FaEnvelope, FaPhoneAlt, FaShieldAlt, FaHashtag } from 'react-icons/fa';
 
 export default function AdminLogin() {
   const [mode, setMode] = useState('login'); // 'login' or 'recover'
+  const [recoveryStep, setRecoveryStep] = useState(1); // 1: Request, 2: Verify
   const [password, setPassword] = useState('');
-  const [recoveryKey, setRecoveryKey] = useState('');
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryPhone, setRecoveryPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -39,19 +42,39 @@ export default function AdminLogin() {
         }
       } else {
         // Recovery Mode
-        const res = await fetch(`${baseUrl}/api/auth/recover`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recoveryKey, newPassword }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setSuccess('✅ ' + data.message);
-          setMode('login');
-          setRecoveryKey('');
-          setNewPassword('');
+        if (recoveryStep === 1) {
+          // Request OTP
+          const res = await fetch(`${baseUrl}/api/auth/request-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: recoveryEmail, phone: recoveryPhone }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setSuccess('✅ ' + data.message);
+            setRecoveryStep(2);
+          } else {
+            setError('❌ ' + (data.message || 'Failed to send OTP'));
+          }
         } else {
-          setError('❌ ' + (data.message || 'Recovery failed'));
+          // Verify OTP & Reset
+          const res = await fetch(`${baseUrl}/api/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: recoveryEmail, otp, newPassword }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setSuccess('✅ ' + data.message);
+            setMode('login');
+            setRecoveryStep(1);
+            setRecoveryEmail('');
+            setRecoveryPhone('');
+            setOtp('');
+            setNewPassword('');
+          } else {
+            setError('❌ ' + (data.message || 'Verification failed'));
+          }
         }
       }
     } catch {
@@ -69,15 +92,15 @@ export default function AdminLogin() {
             {mode === 'login' ? <FaBolt /> : <FaShieldAlt />}
           </div>
           <h1 className="admin-login-title">
-            {mode === 'login' ? 'Admin Access' : 'Account Recovery'}
+            {mode === 'login' ? 'Admin Access' : recoveryStep === 1 ? 'Identity Verification' : 'Verify OTP'}
           </h1>
           <p className="admin-login-sub">
-            {mode === 'login' ? 'Portfolio Control Panel' : 'Reset your admin password'}
+            {mode === 'login' ? 'Portfolio Control Panel' : recoveryStep === 1 ? 'Step 1: Enter registered details' : 'Step 2: Enter the code sent to your email'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="admin-login-form">
-          {success && <div className="admin-success-msg" style={{color: '#10b981', marginBottom: '1rem', textAlign: 'center', fontWeight: 'bold'}}>{success}</div>}
+          {success && <div className="admin-success-msg" style={{color: '#10b981', marginBottom: '1rem', textAlign: 'center', fontSize: '0.9rem'}}>{success}</div>}
           
           {mode === 'login' ? (
             <div className="admin-form-group">
@@ -102,20 +125,52 @@ export default function AdminLogin() {
                 </button>
               </div>
             </div>
+          ) : recoveryStep === 1 ? (
+            <>
+              <div className="admin-form-group">
+                <label className="admin-label">Recovery Email</label>
+                <div className="admin-input-wrapper">
+                  <input
+                    type="email"
+                    className="admin-input"
+                    placeholder="Enter registered email"
+                    value={recoveryEmail}
+                    onChange={(e) => setRecoveryEmail(e.target.value)}
+                    required
+                  />
+                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaEnvelope /></div>
+                </div>
+              </div>
+              <div className="admin-form-group" style={{marginTop: '1rem'}}>
+                <label className="admin-label">Recovery Phone</label>
+                <div className="admin-input-wrapper">
+                  <input
+                    type="tel"
+                    className="admin-input"
+                    placeholder="Enter registered phone"
+                    value={recoveryPhone}
+                    onChange={(e) => setRecoveryPhone(e.target.value)}
+                    required
+                  />
+                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaPhoneAlt /></div>
+                </div>
+              </div>
+            </>
           ) : (
             <>
               <div className="admin-form-group">
-                <label className="admin-label">Master Recovery Key</label>
+                <label className="admin-label">Enter 6-Digit OTP</label>
                 <div className="admin-input-wrapper">
                   <input
-                    type="password"
+                    type="text"
                     className="admin-input"
-                    placeholder="Enter secret recovery key"
-                    value={recoveryKey}
-                    onChange={(e) => setRecoveryKey(e.target.value)}
+                    placeholder="Check your email"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
                     required
+                    maxLength="6"
                   />
-                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaKey /></div>
+                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaHashtag /></div>
                 </div>
               </div>
               <div className="admin-form-group" style={{marginTop: '1rem'}}>
@@ -146,7 +201,8 @@ export default function AdminLogin() {
 
           <button type="submit" className="admin-login-btn" disabled={loading} style={{marginTop: '1.5rem'}}>
             {loading ? <span className="admin-spinner"></span> : (
-              mode === 'login' ? <><FaUnlock style={{marginRight: '8px'}} /> Enter Dashboard</> : '🔄 Reset Password'
+              mode === 'login' ? <><FaUnlock style={{marginRight: '8px'}} /> Enter Dashboard</> : 
+              recoveryStep === 1 ? '🚀 Send OTP' : '🔄 Verify & Reset'
             )}
           </button>
         </form>
@@ -157,12 +213,17 @@ export default function AdminLogin() {
             className="admin-forgot-btn" 
             style={{background: 'none', border: 'none', color: '#6B6880', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline'}}
             onClick={() => {
-              setMode(mode === 'login' ? 'recover' : 'login');
+              if (mode === 'recover' && recoveryStep === 2) {
+                setRecoveryStep(1);
+              } else {
+                setMode(mode === 'login' ? 'recover' : 'login');
+                setRecoveryStep(1);
+              }
               setError('');
               setSuccess('');
             }}
           >
-            {mode === 'login' ? 'Forgot Password?' : 'Back to Login'}
+            {mode === 'login' ? 'Forgot Password?' : 'Back'}
           </button>
           <a href="/" className="admin-back-link">
             <FaArrowLeft style={{marginRight: '6px'}} /> Back to Portfolio
