@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaUser, FaInfoCircle, FaGraduationCap, FaTools, 
@@ -34,17 +34,17 @@ const SaveBtn = ({ onClick, status }) => (
 function useSave(section, value, updatePortfolio, setGlobalSave) {
   const [status, setStatus] = useState('');
   
-  const save = async () => {
+  const save = useCallback(async () => {
     setStatus('saving');
     const ok = await updatePortfolio(section, value);
     setStatus(ok ? 'ok' : 'err');
     setTimeout(() => setStatus(''), 2500);
     return ok;
-  };
+  }, [section, value, updatePortfolio]);
 
   useEffect(() => {
-    setGlobalSave(() => save, status);
-  }, [value, status]);
+    setGlobalSave(save, status);
+  }, [save, status, setGlobalSave]);
 
   return [status, save];
 }
@@ -513,13 +513,16 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Global Save State
-  const [globalSaveFunc, setGlobalSaveFunc] = useState(null);
+  const saveRef = useRef(null);
   const [globalSaveStatus, setGlobalSaveStatus] = useState('');
 
-  const setGlobalSave = (func, status) => {
-    setGlobalSaveFunc(() => func);
+  const setGlobalSave = useCallback((func, status) => {
+    saveRef.current = func;
     setGlobalSaveStatus(status);
+  }, []);
+
+  const handleGlobalSave = () => {
+    if (saveRef.current) saveRef.current();
   };
 
   // Refresh confirmation
@@ -618,7 +621,7 @@ export default function AdminDashboard() {
           
           {showSaveBtn && (
             <div className="adm-header-actions">
-              <SaveBtn onClick={globalSaveFunc} status={globalSaveStatus} />
+              <SaveBtn onClick={handleGlobalSave} status={globalSaveStatus} />
             </div>
           )}
         </div>
