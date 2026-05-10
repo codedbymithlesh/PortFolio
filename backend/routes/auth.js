@@ -74,21 +74,20 @@ const nodemailer = require('nodemailer');
 
 // POST /api/auth/request-otp — Generate and send OTP to Email
 router.post('/request-otp', async (req, res) => {
-  const { email, phone } = req.body;
+  const { email } = req.body;
   
-  if (!email || !phone) {
-    return res.status(400).json({ message: 'Email and phone are required' });
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
   }
 
   // Verify details against .env
   const masterEmail = process.env.RECOVERY_EMAIL;
-  const masterPhone = process.env.RECOVERY_PHONE;
 
-  if (!masterEmail || !masterPhone) {
-    return res.status(500).json({ message: 'Recovery details not configured in .env' });
+  if (!masterEmail) {
+    return res.status(500).json({ message: 'Recovery email not configured in .env' });
   }
 
-  if (email.trim().toLowerCase() !== masterEmail.trim().toLowerCase() || phone.trim() !== masterPhone.trim()) {
+  if (email.trim().toLowerCase() !== masterEmail.trim().toLowerCase()) {
     return res.status(401).json({ message: 'Verification details do not match' });
   }
 

@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBolt, FaEye, FaEyeSlash, FaUnlock, FaArrowLeft, FaEnvelope, FaPhoneAlt, FaShieldAlt, FaHashtag } from 'react-icons/fa';
+import { FaBolt, FaEye, FaEyeSlash, FaUnlock, FaArrowLeft, FaEnvelope, FaShieldAlt, FaHashtag } from 'react-icons/fa';
 
 export default function AdminLogin() {
   const [mode, setMode] = useState('login'); // 'login' or 'recover'
   const [recoveryStep, setRecoveryStep] = useState(1); // 1: Request, 2: Verify
   const [password, setPassword] = useState('');
   const [recoveryEmail, setRecoveryEmail] = useState('');
-  const [recoveryPhone, setRecoveryPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -47,14 +46,15 @@ export default function AdminLogin() {
           const res = await fetch(`${baseUrl}/api/auth/request-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: recoveryEmail, phone: recoveryPhone }),
+            body: JSON.stringify({ email: recoveryEmail }),
           });
           const data = await res.json();
           if (res.ok) {
             setSuccess('✅ ' + data.message);
             setRecoveryStep(2);
           } else {
-            setError('❌ ' + (data.message || 'Failed to send OTP'));
+            const detail = data.error ? `: ${data.error}` : '';
+            setError('❌ ' + (data.message || 'Failed to send OTP') + detail);
           }
         } else {
           // Verify OTP & Reset
@@ -69,7 +69,6 @@ export default function AdminLogin() {
             setMode('login');
             setRecoveryStep(1);
             setRecoveryEmail('');
-            setRecoveryPhone('');
             setOtp('');
             setNewPassword('');
           } else {
@@ -95,7 +94,7 @@ export default function AdminLogin() {
             {mode === 'login' ? 'Admin Access' : recoveryStep === 1 ? 'Identity Verification' : 'Verify OTP'}
           </h1>
           <p className="admin-login-sub">
-            {mode === 'login' ? 'Portfolio Control Panel' : recoveryStep === 1 ? 'Step 1: Enter registered details' : 'Step 2: Enter the code sent to your email'}
+            {mode === 'login' ? 'Portfolio Control Panel' : recoveryStep === 1 ? 'Enter your registered email' : 'Step 2: Enter the code sent to your email'}
           </p>
         </div>
 
@@ -126,36 +125,20 @@ export default function AdminLogin() {
               </div>
             </div>
           ) : recoveryStep === 1 ? (
-            <>
-              <div className="admin-form-group">
-                <label className="admin-label">Recovery Email</label>
-                <div className="admin-input-wrapper">
-                  <input
-                    type="email"
-                    className="admin-input"
-                    placeholder="Enter registered email"
-                    value={recoveryEmail}
-                    onChange={(e) => setRecoveryEmail(e.target.value)}
-                    required
-                  />
-                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaEnvelope /></div>
-                </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Recovery Email</label>
+              <div className="admin-input-wrapper">
+                <input
+                  type="email"
+                  className="admin-input"
+                  placeholder="Enter registered email"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  required
+                />
+                <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaEnvelope /></div>
               </div>
-              <div className="admin-form-group" style={{marginTop: '1rem'}}>
-                <label className="admin-label">Recovery Phone</label>
-                <div className="admin-input-wrapper">
-                  <input
-                    type="tel"
-                    className="admin-input"
-                    placeholder="Enter registered phone"
-                    value={recoveryPhone}
-                    onChange={(e) => setRecoveryPhone(e.target.value)}
-                    required
-                  />
-                  <div className="admin-show-pass" style={{pointerEvents: 'none'}}><FaPhoneAlt /></div>
-                </div>
-              </div>
-            </>
+            </div>
           ) : (
             <>
               <div className="admin-form-group">
