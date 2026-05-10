@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
@@ -20,7 +21,14 @@ function authMiddleware(req, res, next) {
 
 // Multer storage — save to /uploads with original extension
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads')),
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadPath) && process.env.NODE_ENV !== 'production') {
+       // Only try to create if not in production/serverless
+       try { fs.mkdirSync(uploadPath); } catch (e) {}
+    }
+    cb(null, uploadPath);
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, `profile_${Date.now()}${ext}`);

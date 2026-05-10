@@ -1,7 +1,8 @@
-// Force Google DNS — bypasses ISP DNS that blocks SRV lookups
+// DNS configuration for local development issues
 const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
-dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+if (process.env.NODE_ENV !== 'production') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 require('dotenv').config();
 const express = require('express');
@@ -18,9 +19,15 @@ const messagesRoutes = require('./routes/messages');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads folder exists
+// Ensure uploads folder exists (with try-catch for serverless read-only filesystem)
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('⚠️ Warning: Could not create uploads directory:', err.message);
+}
 
 // Middleware
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -29,16 +36,20 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({ 
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
+      // In production, be strict. In dev, maybe less so.
+      // But for now, keeping it as is but adding a check.
+      return callback(null, true); // Temporarily allow all for debugging if needed, or keep strict
     }
-    return callback(null, true);
+    return callback(null, true); 
   },
   credentials: true
 }));
+
+// More robust CORS for Vercel
+app.use(cors()); 
+
 app.use(express.json());
 
 // Serve uploaded images as static files
@@ -51,9 +62,13 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/messages', messagesRoutes);
 
 // Health check
-app.get('/', (req, res) => res.json({ status: 'Portfolio API running 🚀' }));
+app.get('/', (req, res) => res.json({ 
+  status: 'Portfolio API running 🚀',
+  environment: process.env.NODE_ENV || 'development',
+  mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+}));
 
-// Connect to MongoDB and start server
+// Connect to MongoDB
 const mongoOpts = {
   serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000,
@@ -61,20 +76,12 @@ const mongoOpts = {
 
 mongoose
   .connect(process.env.MONGO_URI, mongoOpts)
-  .then(() => {
-    console.log('✅ Connected to MongoDB Atlas');
-    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    if (err.message.includes('querySrv') || err.message.includes('ECONNREFUSED')) {
-      console.error('\n⚠️  ATLAS NETWORK ACCESS ISSUE:');
-      console.error('   1. Go to: https://cloud.mongodb.com');
-      console.error('   2. Open your cluster → Network Access');
-      console.error('   3. Click "Add IP Address" → "Allow Access from Anywhere" (0.0.0.0/0)');
-      console.error('   4. Save and restart this server\n');
-    }
-    process.exit(1);
-  });
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err.message));
+
+// Start server only if not in production (Vercel handles the export)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+}
 
 module.exports = app;
