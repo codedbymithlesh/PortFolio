@@ -19,7 +19,40 @@ const messagesRoutes = require('./routes/messages');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads folder exists (with try-catch for serverless read-only filesystem)
+// Middleware
+app.use(cors({ 
+  origin: '*', // You can restrict this later, but leave it open while debugging Vercel
+  credentials: true
+}));
+app.use(express.json());
+
+// --- 🛠️ THE VERCEL FIX: Serverless DB Connection Middleware ---
+let isConnected = false; // Global cache for serverless environments
+
+const connectDB = async () => {
+  if (isConnected) return; // Use existing connection if it exists
+
+  try {
+    const mongoOpts = {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    };
+    const db = await mongoose.connect(process.env.MONGO_URL, mongoOpts);
+    isConnected = db.connections[0].readyState === 1;
+    console.log('✅ Connected to MongoDB Atlas');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+  }
+};
+
+// Force connection before processing any requests
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+// --------------------------------------------------------------
+
+// Ensure uploads folder exists (Read-only on Vercel, but prevents crashes)
 const uploadsDir = path.join(__dirname, 'uploads');
 try {
   if (!fs.existsSync(uploadsDir)) {
@@ -28,31 +61,6 @@ try {
 } catch (err) {
   console.warn('⚠️ Warning: Could not create uploads directory:', err.message);
 }
-
-// Middleware
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
-
-app.use(cors({ 
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
-      // In production, be strict. In dev, maybe less so.
-      // But for now, keeping it as is but adding a check.
-      return callback(null, true); // Temporarily allow all for debugging if needed, or keep strict
-    }
-    return callback(null, true); 
-  },
-  credentials: true
-}));
-
-// More robust CORS for Vercel
-app.use(cors()); 
-
-app.use(express.json());
-
-// Serve uploaded images as static files
 app.use('/uploads', express.static(uploadsDir));
 
 // Routes
@@ -65,19 +73,8 @@ app.use('/api/messages', messagesRoutes);
 app.get('/', (req, res) => res.json({ 
   status: 'Portfolio API running 🚀',
   environment: process.env.NODE_ENV || 'development',
-  mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  mongodb: isConnected ? 'connected' : 'disconnected'
 }));
-
-// Connect to MongoDB
-const mongoOpts = {
-  serverSelectionTimeoutMS: 10000,
-  socketTimeoutMS: 45000,
-};
-
-mongoose
-  .connect(process.env.MONGO_URL, mongoOpts)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err.message));
 
 // Start server only if not in production (Vercel handles the export)
 if (process.env.NODE_ENV !== 'production') {
