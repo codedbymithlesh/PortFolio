@@ -67,4 +67,36 @@ router.put('/change-password', auth, async (req, res) => {
   }
 });
 
+// POST /api/auth/recover — Recover password using a Master Recovery Key
+router.post('/recover', async (req, res) => {
+  const { recoveryKey, newPassword } = req.body;
+  
+  if (!recoveryKey || !newPassword) {
+    return res.status(400).json({ message: 'Recovery key and new password are required' });
+  }
+
+  // Ensure recovery key is set in .env and matches
+  const masterKey = process.env.RECOVERY_KEY;
+  if (!masterKey || recoveryKey !== masterKey) {
+    return res.status(401).json({ message: 'Invalid recovery key' });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ message: 'New password must be at least 8 characters' });
+  }
+
+  try {
+    const hash = await bcrypt.hash(newPassword, 12);
+    await Settings.findOneAndUpdate(
+      { key: 'admin_password_hash' },
+      { key: 'admin_password_hash', value: hash },
+      { upsert: true, new: true }
+    );
+    res.json({ message: 'Password reset successful. You can now login with your new password.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
