@@ -14,6 +14,10 @@ export default function AdminLogin() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    document.title = 'Admin Login';
+  }, []);
 
   const baseUrl = 'https://port-folio-backend-file.vercel.app';
 
@@ -91,7 +95,7 @@ export default function AdminLogin() {
             {mode === 'login' ? <FaBolt /> : <FaShieldAlt />}
           </div>
           <h1 className="admin-login-title">
-            {mode === 'login' ? 'Admin Access' : recoveryStep === 1 ? 'Identity Verification' : 'Verify OTP'}
+            {mode === 'login' ? 'Admin Login' : recoveryStep === 1 ? 'Identity Verification' : 'Verify OTP'}
           </h1>
           <p className="admin-login-sub">
             {mode === 'login' ? 'Portfolio Control Panel' : recoveryStep === 1 ? 'Enter your registered email' : 'Step 2: Enter the code sent to your email'}

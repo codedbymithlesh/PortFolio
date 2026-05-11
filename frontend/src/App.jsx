@@ -10,6 +10,7 @@ import Projects from './pages/Projects';
 import NotFound from './pages/NotFound';
 
 import ParticlesBackground from './components/ParticlesBackground';
+import AnimatedGrid from './components/AnimatedGrid';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import MyUniverse from './components/About';
@@ -102,6 +103,28 @@ function Portfolio() {
     return () => observer.disconnect();
   }, []);
 
+  // Protection: Disable Right Click on Portfolio
+  React.useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // Intersection Observer for Scroll Reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      observer.disconnect();
+    };
+  }, [loading]); // Re-run when loading finishes to catch newly rendered elements
+
   if (error) {
     return (
       <div className="error-screen">
@@ -116,9 +139,10 @@ function Portfolio() {
   }
 
   return (
-    <>
+    <div className="no-copy">
       <Preloader loading={loading} />
       <ParticlesBackground />
+      <AnimatedGrid />
       <div className="background-animations">
         <div className="bg-blob blob-1"></div>
         <div className="bg-blob blob-2"></div>
@@ -127,17 +151,17 @@ function Portfolio() {
       <div className="app-container">
         <Navbar />
         <main className="main-content">
-          <Hero />
-          <section id="universe" className="section-grid">
+          <div className="reveal"><Hero /></div>
+          <section id="universe" className="section-grid reveal">
             <MyUniverse />
             <Education />
           </section>
-          <TechArsenal />
-          <FeaturedBuilds />
-          <Contact />
+          <div className="reveal"><TechArsenal /></div>
+          <div className="reveal"><FeaturedBuilds /></div>
+          <div className="reveal"><Contact /></div>
         </main>
       </div>
-    </>
+    </div>
   );
 }
 

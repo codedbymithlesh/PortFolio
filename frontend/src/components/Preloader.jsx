@@ -17,12 +17,11 @@ const Preloader = ({ loading }) => {
 
   return (
     <div className={`preloader-container ${fadeOut ? 'fade-out' : ''}`}>
-      <div className="loader-geometry">
-        <div className="loader-circle"></div>
-        <div className="loader-circle"></div>
-        <div className="loader-circle"></div>
+      <div className="loader-content">
+        <div className="loader-ring"></div>
+        <div className="loader-logo">MR</div>
       </div>
-      <div className="loader-text">Loading...</div>
+      <div className="loader-status">Loading...</div>
     </div>
   );
 };

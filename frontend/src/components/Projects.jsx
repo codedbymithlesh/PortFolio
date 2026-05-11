@@ -6,9 +6,15 @@ import { usePortfolio } from '../context/PortfolioContext';
 const FeaturedBuilds = () => {
   const { portfolio } = usePortfolio();
   const { projects } = portfolio;
+  const [visibleCount, setVisibleCount] = React.useState(10);
   
-  const displayedProjects = (projects || []).slice(0, 6);
-  const hasMore = (projects || []).length > 6;
+  const allProjects = projects || [];
+  const displayedProjects = allProjects.slice(0, visibleCount);
+  const hasMore = allProjects.length > visibleCount;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 10);
+  };
 
   return (
     <section id="builds" className="builds-section mt-5">
@@ -16,7 +22,7 @@ const FeaturedBuilds = () => {
 
       <div className="builds-grid">
         {displayedProjects.map((project, i) => (
-          <div key={i} className="card build-card">
+          <div key={i} className="card build-card reveal">
             <h3 className="card-title">{project.title}</h3>
             <div className="pill-container mb-3">
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
@@ -31,9 +37,13 @@ const FeaturedBuilds = () => {
       
       {hasMore && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
-          <Link to="/all-projects" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-            View All Projects <FaArrowRight />
-          </Link>
+          <button 
+            onClick={handleLoadMore} 
+            className="btn-primary reveal" 
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+          >
+            Load More Projects ({allProjects.length - visibleCount} remaining) <FaArrowRight />
+          </button>
         </div>
       )}
     </section>

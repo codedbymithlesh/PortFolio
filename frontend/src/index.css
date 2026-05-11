@@ -1,6 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@900&family=Syncopate:wght@400;700&family=Michroma&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* ... existing variables ... */
+  --font-main: 'Space Grotesk', sans-serif;
+  --font-heading: 'Michroma', sans-serif;
+  --font-hero: 'Unbounded', sans-serif;
   /* ── Core Backgrounds ── */
   --bg-dark:        #000005;                    /* True pitch black */
   --bg-card:        rgba(10, 6, 16, 0.80);      /* Near-black card */
@@ -22,23 +26,18 @@
   --accent-gold:        #D97706;   /* Dim amber/gold */
   --accent-gold-light:  #FCD34D;   /* Bright gold */
 
-  /* ── Legacy aliases ── */
-  --accent-blue:   #DC2626;
-  --accent-cyan:   #F87171;
-  --accent-purple: #DC2626;
-  --accent-orange: #D97706;
-  --accent-violet: #DC2626;
-  --accent-emerald:#D97706;
-  --accent-violet-light: #F87171;
-  --accent-emerald-light: #FCD34D;
-  --border-hover-emerald: rgba(220, 38, 38, 0.55);
+  --accent-gold-light:  #FCD34D;   /* Bright gold */
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-main);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }
 
 html {
@@ -51,6 +50,53 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   overflow-x: hidden;
+}
+
+/* ── Custom Global Scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--accent-red-dim), var(--accent-red));
+  border-radius: 10px;
+  border: 2px solid var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-red);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-red) var(--bg-dark);
+}
+
+/* ── Protection ── */
+.no-copy {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Deep Background Glow ── */
@@ -192,8 +238,11 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
   margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .section-header {
@@ -295,9 +344,9 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
     var(--accent-red),
     var(--accent-red-dim)
   );
-  filter: blur(32px);
+  filter: blur(24px);
   border-radius: 50%;
-  opacity: 0.55;
+  opacity: 0.35;
   z-index: 0;
   animation: spin-glow 7s linear infinite;
 }
@@ -314,13 +363,16 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
 .profile-image img { width: 100%; height: 100%; object-fit: cover; }
 
 .hero-title {
-  font-size: 3.6rem; font-weight: 800; margin-bottom: 0.5rem;
-  letter-spacing: -1px;
+  font-family: var(--font-hero);
+  font-size: 3.8rem; font-weight: 900; margin-bottom: 0.5rem;
+  letter-spacing: -3px;
+  text-transform: uppercase;
   background: linear-gradient(135deg, #FFFFFF 20%, #F87171 60%, var(--accent-red-light) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .hero-subtitle {
-  font-size: 1.1rem; font-weight: 600; letter-spacing: 2.5px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem; font-weight: 600; letter-spacing: 4px;
   background: linear-gradient(90deg, var(--accent-red-light), var(--accent-gold-light));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   margin-bottom: 1.5rem;
