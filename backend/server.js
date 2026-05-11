@@ -21,51 +21,10 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({ 
-  origin: process.env.FRONTEND_URL || true, 
+  origin: true, 
   credentials: true
 }));
-app.use(express.json({ limit: '10kb' })); // Limit body size to prevent DoS
-
-// Security Headers (Basic Helmet implementation)
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  res.setHeader('Content-Security-Policy', "default-src 'self'");
-  res.disable('x-powered-by'); // Prevent fingerprinting
-  next();
-});
-
-// Simple Rate Limiter
-const loginAttempts = new Map();
-const rateLimit = (req, res, next) => {
-  const ip = req.ip;
-  const now = Date.now();
-  const limit = 100; // 100 requests
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-
-  if (!loginAttempts.has(ip)) {
-    loginAttempts.set(ip, { count: 1, firstRequest: now });
-    return next();
-  }
-
-  const data = loginAttempts.get(ip);
-  if (now - data.firstRequest > windowMs) {
-    loginAttempts.set(ip, { count: 1, firstRequest: now });
-    return next();
-  }
-
-  data.count++;
-  if (data.count > limit) {
-    return res.status(429).json({ message: 'Too many requests, please try again later.' });
-  }
-  next();
-};
-
-// Apply rate limiting to sensitive routes
-app.use('/api/auth/login', rateLimit);
-app.use('/api/messages', rateLimit);
+app.use(express.json());
 
 // --- 🛠️ THE VERCEL FIX: Serverless DB Connection ---
 let cachedDb = null;
@@ -73,15 +32,16 @@ let cachedDb = null;
 const connectDB = async () => {
   if (cachedDb && mongoose.connection.readyState === 1) return;
 
+  console.log('🔄 Connecting to MongoDB...');
   try {
     const mongoOpts = {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     };
     cachedDb = await mongoose.connect(process.env.MONGO_URL, mongoOpts);
+    console.log('MongoDB Connected!');
   } catch (err) {
-    // Avoid logging sensitive connection strings
-    console.error('Database connection failed');
+    console.error('MongoDB connection error:', err.message);
   }
 };
 
@@ -92,14 +52,14 @@ app.use(async (req, res, next) => {
 });
 // --------------------------------------------------
 
-// Ensure uploads folder exists (Read-only on Vercel, but prevents crashes)
+// Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
 try {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 } catch (err) {
-  // Silent fail in production
+  console.warn('Warning: Could not create uploads directory:', err.message);
 }
 app.use('/uploads', express.static(uploadsDir));
 
@@ -109,13 +69,14 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/messages', messagesRoutes);
 
-// Health check (Sanitized)
+// Health check
 app.get('/', (req, res) => res.json({ 
-  status: 'active',
-  timestamp: new Date().toISOString()
+  status: 'Portfolio API running',
+  environment: process.env.NODE_ENV || 'development',
+  mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
 }));
 
-// Start server only if not in production (Vercel handles the export)
+// Start server only if not in production
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
