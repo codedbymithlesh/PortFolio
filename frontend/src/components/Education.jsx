@@ -2,7 +2,7 @@ import React from 'react';
 import { FaGraduationCap } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const Education = () => {
+const Education = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { education } = portfolio;
 
@@ -28,6 +28,6 @@ const Education = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Education;

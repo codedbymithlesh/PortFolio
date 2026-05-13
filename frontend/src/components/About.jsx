@@ -9,7 +9,7 @@ const ICON_MAP = {
   '🎮': <FaGamepad />,
 };
 
-const MyUniverse = () => {
+const MyUniverse = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { about } = portfolio;
 
@@ -39,6 +39,6 @@ const MyUniverse = () => {
       </div>
     </div>
   );
-};
+});
 
 export default MyUniverse;

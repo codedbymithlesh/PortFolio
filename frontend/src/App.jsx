@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { FaWifi, FaRedo } from 'react-icons/fa';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-import Projects from './pages/Projects';
-import NotFound from './pages/NotFound';
+
+// Lazy load non-critical pages
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Projects = lazy(() => import('./pages/Projects'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 import ParticlesBackground from './components/ParticlesBackground';
 import AnimatedGrid from './components/AnimatedGrid';
@@ -36,6 +38,22 @@ function Portfolio() {
     }
   }, [portfolio.hero.name]);
 
+  // Memoized Section Data
+  const sections = React.useMemo(() => [
+    { id: 'home', path: '/' },
+    { id: 'universe', path: '/about' },
+    { id: 'tech', path: '/skills' },
+    { id: 'builds', path: '/projects' },
+    { id: 'contact', path: '/contact' }
+  ], []);
+
+  const sectionMap = React.useMemo(() => ({
+    'about': 'universe',
+    'skills': 'tech',
+    'projects': 'builds',
+    'contact': 'contact'
+  }), []);
+
   // Handle deep linking (scroll to section on load/path change)
   React.useEffect(() => {
     const path = location.pathname.replace('/', '');
@@ -44,16 +62,9 @@ function Portfolio() {
       return;
     }
 
-    const sectionMap = {
-      'about': 'universe',
-      'skills': 'tech',
-      'projects': 'builds',
-      'contact': 'contact'
-    };
-
     const targetId = sectionMap[path];
     if (targetId) {
-      setTimeout(() => {
+      const scrollTimer = setTimeout(() => {
         const el = document.getElementById(targetId);
         if (el) {
           const offset = 100; // Adjust for sticky navbar
@@ -68,19 +79,12 @@ function Portfolio() {
           });
         }
       }, 100);
+      return () => clearTimeout(scrollTimer);
     }
-  }, [location.pathname]);
+  }, [location.pathname, sectionMap]);
 
   // Handle URL update on scroll (Scroll Spy)
   React.useEffect(() => {
-    const sections = [
-      { id: 'home', path: '/' },
-      { id: 'universe', path: '/about' },
-      { id: 'tech', path: '/skills' },
-      { id: 'builds', path: '/projects' },
-      { id: 'contact', path: '/contact' }
-    ];
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -101,7 +105,7 @@ function Portfolio() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   // Protection: Disable Right Click on Portfolio
   React.useEffect(() => {
@@ -169,25 +173,27 @@ function App() {
   return (
     <Router>
       <PortfolioProvider>
-        <Routes>
-          <Route path="/" element={<Portfolio />} />
-          <Route path="/about" element={<Portfolio />} />
-          <Route path="/skills" element={<Portfolio />} />
-          <Route path="/projects" element={<Portfolio />} />
-          <Route path="/contact" element={<Portfolio />} />
-          <Route path="/all-projects" element={<Projects />} />
-          
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<Preloader loading={true} />}>
+          <Routes>
+            <Route path="/" element={<Portfolio />} />
+            <Route path="/about" element={<Portfolio />} />
+            <Route path="/skills" element={<Portfolio />} />
+            <Route path="/projects" element={<Portfolio />} />
+            <Route path="/contact" element={<Portfolio />} />
+            <Route path="/all-projects" element={<Projects />} />
+            
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </PortfolioProvider>
     </Router>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import { FaCode, FaServer, FaTools } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const TechArsenal = () => {
+const TechArsenal = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { skills } = portfolio;
 
@@ -43,6 +43,6 @@ const TechArsenal = () => {
       </div>
     </section>
   );
-};
+});
 
 export default TechArsenal;

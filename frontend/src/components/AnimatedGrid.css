@@ -46,6 +46,7 @@
   background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.6), transparent);
   animation: streak-h 15s linear infinite;
   box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+  will-change: transform, opacity;
 }
 
 .grid-streak.vertical {
@@ -54,11 +55,12 @@
   background: linear-gradient(180deg, transparent, rgba(217, 119, 6, 0.6), transparent);
   animation: streak-v 15s linear infinite;
   box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+  will-change: transform, opacity;
 }
 
 @keyframes streak-h {
   0% {
-    left: 0%;
+    transform: translateX(-100%);
     opacity: 0;
   }
   5% {
@@ -68,14 +70,14 @@
     opacity: 1;
   }
   100% {
-    left: 100%;
+    transform: translateX(100vw);
     opacity: 0;
   }
 }
 
 @keyframes streak-v {
   0% {
-    top: 0%;
+    transform: translateY(-100%);
     opacity: 0;
   }
   5% {
@@ -85,7 +87,7 @@
     opacity: 1;
   }
   100% {
-    top: 100%;
+    transform: translateY(100vh);
     opacity: 0;
   }
 }

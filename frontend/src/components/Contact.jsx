@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { FaEnvelope, FaMapMarkerAlt, FaGithub, FaLinkedin, FaYoutube, FaPaperPlane, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const Contact = () => {
+const Contact = React.memo(() => {
   const { portfolio, API } = usePortfolio();
   const { contact } = portfolio;
   
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState({ loading: false, type: '', message: '' });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
     setStatus({ loading: true, type: '', message: '' });
     try {
@@ -29,7 +29,7 @@ const Contact = () => {
       setStatus({ loading: false, type: 'error', message: 'Network error. Please try again later.' });
     }
     setTimeout(() => setStatus({ loading: false, type: '', message: '' }), 5000);
-  };
+  }, [API, formData]);
 
   return (
     <section id="contact" className="contact-section mt-5">
@@ -72,8 +72,14 @@ const Contact = () => {
                 value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
             </div>
             <div className="form-group">
-              <textarea placeholder="How can I help you?" className="form-input form-textarea" rows="4" required
-                value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})}></textarea>
+              <input 
+                type="text"
+                placeholder="How can I help you?" 
+                className="form-input" 
+                required
+                value={formData.message} 
+                onChange={(e) => setFormData({...formData, message: e.target.value})}
+              />
             </div>
             <button type="submit" className="btn-primary w-100 flex-center" disabled={status.loading}>
               {status.loading ? 'Sending...' : <>Send Message <FaPaperPlane className="ml-2" /></>}
@@ -88,6 +94,6 @@ const Contact = () => {
       </div>
     </section>
   );
-};
+});
 
 export default Contact;

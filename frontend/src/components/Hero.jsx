@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const Hero = () => {
+const Hero = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { hero } = portfolio;
 
@@ -24,6 +24,6 @@ const Hero = () => {
       </button>
     </section>
   );
-};
+});
 
 export default Hero;

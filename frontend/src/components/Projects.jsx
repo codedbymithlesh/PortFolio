@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 
-const FeaturedBuilds = () => {
+const FeaturedBuilds = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { projects } = portfolio;
   const [visibleCount, setVisibleCount] = React.useState(10);
   
   const allProjects = projects || [];
-  const displayedProjects = allProjects.slice(0, visibleCount);
+  const displayedProjects = React.useMemo(() => allProjects.slice(0, visibleCount), [allProjects, visibleCount]);
   const hasMore = allProjects.length > visibleCount;
 
-  const handleLoadMore = () => {
+  const handleLoadMore = React.useCallback(() => {
     setVisibleCount(prev => prev + 10);
-  };
+  }, []);
 
   return (
     <section id="builds" className="builds-section mt-5">
@@ -48,6 +48,6 @@ const FeaturedBuilds = () => {
       )}
     </section>
   );
-};
+});
 
 export default FeaturedBuilds;

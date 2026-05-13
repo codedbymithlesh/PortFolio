@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = React.memo(() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { portfolio } = usePortfolio();
   const { hero } = portfolio;
@@ -79,6 +79,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
 
 export default Navbar;

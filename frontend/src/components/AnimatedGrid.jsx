@@ -3,17 +3,17 @@ import './AnimatedGrid.css';
 
 const AnimatedGrid = React.memo(() => {
   const horizontalStreaks = useMemo(() => 
-    [...Array(window.innerWidth > 768 ? 20 : 8)].map((_, i) => ({
+    [...Array(window.innerWidth > 768 ? 15 : 6)].map((_, i) => ({
       id: i,
-      top: `${(i + 1) * (window.innerWidth > 768 ? 150 : 240)}px`,
+      top: `${(i + 1) * (window.innerWidth > 768 ? 150 : 280)}px`,
       delay: `${Math.random() * 10}s`,
       duration: `${Math.random() * 5 + 10}s`
     })), []);
 
   const verticalStreaks = useMemo(() => 
-    [...Array(window.innerWidth > 768 ? 20 : 8)].map((_, i) => ({
+    [...Array(window.innerWidth > 768 ? 15 : 6)].map((_, i) => ({
       id: i,
-      left: `${(i + 1) * (window.innerWidth > 768 ? 150 : 240)}px`,
+      left: `${(i + 1) * (window.innerWidth > 768 ? 150 : 280)}px`,
       delay: `${Math.random() * 10}s`,
       duration: `${Math.random() * 5 + 10}s`
     })), []);

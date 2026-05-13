@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Preloader.css';
 
-const Preloader = ({ loading }) => {
+const Preloader = React.memo(({ loading }) => {
   const [show, setShow] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -24,6 +24,6 @@ const Preloader = ({ loading }) => {
       <div className="loader-status">Loading...</div>
     </div>
   );
-};
+});
 
 export default Preloader;

@@ -103,7 +103,7 @@ function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
           <div className="adm-upload-box" style={{ height: '100%', justifyContent: 'center' }}>
             {hero.profileImage && (
               <div className="adm-upload-preview" style={{ width: '120px', height: '120px' }}>
-                <img src={hero.profileImage} alt="profile preview" />
+                <img src={hero.profileImage} alt="profile preview" loading="lazy" />
               </div>
             )}
             <label className="adm-upload-btn" htmlFor="profile-upload">

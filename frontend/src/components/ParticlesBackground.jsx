@@ -16,7 +16,7 @@ const ParticlesBackground = React.memo(() => {
           value: 'transparent',
         },
       },
-      fpsLimit: 120,
+      fpsLimit: 60, // Better for battery and performance
       interactivity: {
         events: {
           onClick: {
@@ -30,11 +30,11 @@ const ParticlesBackground = React.memo(() => {
         },
         modes: {
           push: {
-            quantity: 10,
+            quantity: 4, // Reduced for performance
           },
           bubble: {
             distance: 250,
-            size: 12,
+            size: 10,
             duration: 2,
             opacity: 0.9,
           },
@@ -68,20 +68,20 @@ const ParticlesBackground = React.memo(() => {
             default: 'out',
           },
           random: true,
-          speed: 1.2,
+          speed: 1.0, // Slightly slower for smoother feel
           straight: false,
         },
         number: {
           density: {
             enable: true,
-            area: 800,
+            area: 1200, // Larger area = less density
           },
-          value: window.innerWidth > 768 ? 60 : 30,
+          value: window.innerWidth > 768 ? 45 : 20, // Adaptive count
         },
         opacity: {
           value: { min: 0.05, max: 0.15 },
           animation: {
-            enable: true,
+            enable: window.innerWidth > 768, // Disable animation on mobile
             speed: 0.5,
             sync: false,
           }
@@ -90,10 +90,10 @@ const ParticlesBackground = React.memo(() => {
           type: 'circle',
         },
         size: {
-          value: { min: 1, max: 4 },
+          value: { min: 1, max: 3 },
           animation: {
-            enable: true,
-            speed: 3,
+            enable: window.innerWidth > 768, // Disable animation on mobile
+            speed: 2,
             sync: false,
           }
         },

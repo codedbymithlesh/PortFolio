@@ -83,8 +83,16 @@ export function PortfolioProvider({ children }) {
     }
   };
 
+  const value = React.useMemo(() => ({
+    portfolio,
+    loading,
+    error,
+    updatePortfolio,
+    API
+  }), [portfolio, loading, error]);
+
   return (
-    <PortfolioContext.Provider value={{ portfolio, loading, error, updatePortfolio, API }}>
+    <PortfolioContext.Provider value={value}>
       {children}
     </PortfolioContext.Provider>
   );
