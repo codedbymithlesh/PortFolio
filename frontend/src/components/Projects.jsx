@@ -6,15 +6,15 @@ import { usePortfolio } from '../context/PortfolioContext';
 const FeaturedBuilds = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { projects } = portfolio;
-  const [visibleCount, setVisibleCount] = React.useState(10);
+  const [visibleCount, setVisibleCount] = React.useState(6);
   
   const allProjects = projects || [];
   const displayedProjects = React.useMemo(() => allProjects.slice(0, visibleCount), [allProjects, visibleCount]);
   const hasMore = allProjects.length > visibleCount;
 
   const handleLoadMore = React.useCallback(() => {
-    setVisibleCount(prev => prev + 10);
-  }, []);
+    setVisibleCount(allProjects.length);
+  }, [allProjects.length]);
 
   return (
     <section id="builds" className="builds-section mt-5">
@@ -37,13 +37,13 @@ const FeaturedBuilds = React.memo(() => {
       
       {hasMore && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
-          <button 
-            onClick={handleLoadMore} 
+          <Link 
+            to="/all-projects" 
             className="btn-primary reveal" 
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
           >
-            Load More Projects ({allProjects.length - visibleCount} remaining) <FaArrowRight />
-          </button>
+            View All Projects <FaArrowRight />
+          </Link>
         </div>
       )}
     </section>

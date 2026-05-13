@@ -459,7 +459,7 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
 .pill.small { font-size: 0.75rem; padding: 0.2rem 0.6rem; }
 
 /* ── Featured Builds ── */
-.builds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.builds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
 .build-card  { display: flex; flex-direction: column; }
 .build-icon-wrapper {
   width: 50px; height: 50px;
@@ -510,6 +510,10 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
 .form-textarea { resize: vertical; }
 
 /* ── Responsive ── */
+@media (max-width: 1200px) {
+  .builds-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 992px) {
   .section-grid, .tech-grid, .builds-grid, .contact-grid { grid-template-columns: 1fr; }
 }
