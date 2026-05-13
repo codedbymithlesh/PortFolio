@@ -550,10 +550,37 @@ export default function AdminDashboard() {
     if (!token) navigate('/admin/login');
   }, [navigate]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('admin_token');
     navigate('/admin/login');
-  };
+  }, [navigate]);
+
+  // Auto-logout after 30 minutes of inactivity
+  useEffect(() => {
+    let timeoutId;
+    
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        logout();
+      }, 30 * 60 * 1000); // 30 minutes
+    };
+
+    // Track activity
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    activityEvents.forEach(event => {
+      window.addEventListener(event, resetTimer);
+    });
+
+    resetTimer(); // Initialize timer
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [logout]);
 
   if (loading) {
     return (
