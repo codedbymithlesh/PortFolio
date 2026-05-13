@@ -315,7 +315,7 @@ function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
   };
   const scrollRef = useRef(null);
   const add = () => {
-    setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#', linkLabel: 'View Page' }]);
+    setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#' }]);
     setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
   };
   const remove = (i) => {
@@ -336,7 +336,6 @@ function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
               <span className="adm-card-row-num">Project #{i + 1}</span>
               <button className="adm-del-btn" onClick={() => remove(i)}>✕ Remove</button>
             </div>
-            <Field label="Link Label" value={proj.linkLabel} onChange={(v) => update(i, 'linkLabel', v)} />
             <Field label="Project Title" value={proj.title} onChange={(v) => update(i, 'title', v)} />
             <Field label="Project URL" value={proj.link} onChange={(v) => update(i, 'link', v)} />
             <Field label="Description" value={proj.description} onChange={(v) => update(i, 'description', v)} textarea />

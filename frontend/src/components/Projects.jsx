@@ -28,8 +28,8 @@ const FeaturedBuilds = React.memo(() => {
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
             </div>
             <p className="card-text flex-grow">{project.description}</p>
-            <a href={project.link || '#'} className="view-link mt-3" target="_blank" rel="noopener noreferrer">
-              {project.linkLabel || 'View'} <FaArrowRight className="ml-2" />
+            <a href={project.link || '#'} className="btn-primary mt-3" style={{ textAlign: 'center', textDecoration: 'none', display: 'inline-block', width: 'fit-content', padding: '0.6rem 1.8rem' }} target="_blank" rel="noopener noreferrer">
+              Live
             </a>
           </div>
         ))}
