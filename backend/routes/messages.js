@@ -20,8 +20,28 @@ router.post('/', async (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ message: 'Name, email and message are required' });
   }
-  try {
-    await Message.create({ name, email, subject: subject || 'General Inquiry', message });
+    const newMessage = await Message.create({ name, email, subject: subject || 'General Inquiry', message });
+    
+    // Send email notification
+    const sendEmail = require('../utils/email');
+    await sendEmail({
+      subject: `New Portfolio Message: ${subject || 'General Inquiry'}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #DC2626; border-bottom: 2px solid #DC2626; padding-bottom: 10px;">New Message Received</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Subject:</strong> ${subject || 'General Inquiry'}</p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+            <p><strong>Message:</strong></p>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
+          <p style="font-size: 0.8rem; color: #666;">This message was sent from your Portfolio Contact Form.</p>
+        </div>
+      `
+    });
+
     res.status(201).json({ message: 'Message sent successfully!' });
   } catch (err) {
     console.error(err);

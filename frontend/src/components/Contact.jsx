@@ -72,11 +72,11 @@ const Contact = React.memo(() => {
                 value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
             </div>
             <div className="form-group">
-              <input 
-                type="text"
+              <textarea 
                 placeholder="How can I help you?" 
-                className="form-input" 
+                className="form-input form-textarea" 
                 required
+                rows={5}
                 value={formData.message} 
                 onChange={(e) => setFormData({...formData, message: e.target.value})}
               />
