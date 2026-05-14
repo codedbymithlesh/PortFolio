@@ -56,14 +56,27 @@ const Projects = () => {
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
             </div>
             <p className="card-text flex-grow">{project.description}</p>
-            <div className="flex gap-2 mt-3" style={{ display: 'flex', gap: '1rem', marginTop: '1.25rem' }}>
-              <a href={project.link || '#'} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 1rem' }} target="_blank" rel="noopener noreferrer">
-                Live
-              </a>
-              {project.codeLink && (
-                <a href={project.codeLink} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} target="_blank" rel="noopener noreferrer">
+            <div className="flex gap-2 mt-3" style={{ display: 'flex', gap: '0.8rem', marginTop: '1.25rem' }}>
+              {/* Live Button */}
+              {project.link && project.link !== '#' ? (
+                <a href={project.link} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} target="_blank" rel="noopener noreferrer">
+                  Live
+                </a>
+              ) : (
+                <button className="btn-primary" style={{ flex: 1, opacity: 0.3, cursor: 'not-allowed', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} disabled>
+                  Live
+                </button>
+              )}
+
+              {/* Code Button */}
+              {project.codeLink && project.codeLink !== '#' ? (
+                <a href={project.codeLink} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} target="_blank" rel="noopener noreferrer">
                   Code
                 </a>
+              ) : (
+                <button className="btn-primary" style={{ flex: 1, opacity: 0.3, cursor: 'not-allowed', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} disabled>
+                  Code
+                </button>
               )}
             </div>
           </div>
