@@ -70,6 +70,13 @@ export default function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
             {hero.profileImage && (
               <div className="adm-upload-preview" style={{ width: '120px', height: '120px' }}>
                 <img src={hero.profileImage} alt="profile preview" loading="lazy" />
+                <button 
+                  className="adm-preview-del" 
+                  onClick={() => setHero(h => ({ ...h, profileImage: 'https://res.cloudinary.com/dhepliygh/image/upload/f_auto,q_auto/person_zcnmuw' }))}
+                  title="Restore Default"
+                >
+                  ✕
+                </button>
               </div>
             )}
             <label className="adm-upload-btn" htmlFor="profile-upload">
