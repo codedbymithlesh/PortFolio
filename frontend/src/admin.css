@@ -889,3 +889,43 @@
     align-self: flex-end;
   }
 }
+
+/* -- Image Preview & Delete -- */
+.adm-upload-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(180, 30, 50, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.adm-upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-preview-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+
+.adm-preview-del:hover {
+  transform: scale(1.1);
+  background: #DC2626;
+}
+
