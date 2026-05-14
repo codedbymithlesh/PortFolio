@@ -29,9 +29,16 @@ const FeaturedBuilds = React.memo(() => {
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
             </div>
             <p className="card-text flex-grow">{project.description}</p>
-            <a href={project.link || '#'} className="btn-primary mt-3" style={{ textAlign: 'center', textDecoration: 'none', display: 'inline-block', width: 'fit-content', padding: '0.6rem 1.8rem' }} target="_blank" rel="noopener noreferrer">
-              Live
-            </a>
+            <div className="flex gap-2 mt-3" style={{ display: 'flex', gap: '1rem', marginTop: '1.25rem' }}>
+              <a href={project.link || '#'} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 1rem' }} target="_blank" rel="noopener noreferrer">
+                Live
+              </a>
+              {project.codeLink && (
+                <a href={project.codeLink} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} target="_blank" rel="noopener noreferrer">
+                  Code
+                </a>
+              )}
+            </div>
           </div>
         ))}
       </div>

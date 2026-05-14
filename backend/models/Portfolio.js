@@ -33,6 +33,7 @@ const portfolioSchema = new mongoose.Schema({
       tech: [String],
       description: String,
       link: { type: String, default: '#' },
+      codeLink: { type: String, default: '' },
       linkLabel: { type: String, default: 'View Page' },
     }
   ],

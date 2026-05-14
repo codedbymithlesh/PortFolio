@@ -20,6 +20,7 @@ router.post('/', async (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ message: 'Name, email and message are required' });
   }
+  try {
     const newMessage = await Message.create({ name, email, subject: subject || 'General Inquiry', message });
     
     // Send email notification

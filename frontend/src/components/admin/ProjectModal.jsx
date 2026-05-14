@@ -58,7 +58,10 @@ export default function ProjectModal({ project, onSave, onClose }) {
           <div className="adm-grid-2" style={{ alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Field label="Project Title" value={edited.title} onChange={(v) => update('title', v)} />
-              <Field label="Project URL" value={edited.link} onChange={(v) => update('link', v)} />
+              <div className="adm-grid-2">
+                <Field label="Live URL" value={edited.link} onChange={(v) => update('link', v)} />
+                <Field label="Code URL (Optional)" value={edited.codeLink || ''} onChange={(v) => update('codeLink', v)} />
+              </div>
             </div>
             
             <div className="adm-field">
