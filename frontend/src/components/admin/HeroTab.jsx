@@ -11,30 +11,45 @@ export default function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [uploadStatus, setUploadStatus] = useState('');
   const set = (k) => (v) => setHero((h) => ({ ...h, [k]: v }));
 
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     setUploadStatus('uploading');
-    const formData = new FormData();
-    formData.append('image', file);
-    try {
-      const token = localStorage.getItem('admin_token');
-      const res = await fetch(`${API}/upload/profile`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setHero((h) => ({ ...h, profileImage: data.url }));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.src = reader.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 600; // Profile pics can be smaller
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        setHero((h) => ({ ...h, profileImage: compressed }));
         setUploadStatus('done');
-      } else {
-        setUploadStatus('error');
-      }
-    } catch {
-      setUploadStatus('error');
-    }
-    setTimeout(() => setUploadStatus(''), 3000);
+        setTimeout(() => setUploadStatus(''), 3000);
+      };
+    };
+    reader.readAsDataURL(file);
   };
 
   return (

@@ -74,14 +74,14 @@ const ParticlesBackground = React.memo(() => {
         number: {
           density: {
             enable: true,
-            area: 1200, // Larger area = less density
+            area: 1500, // Even larger area for less density
           },
-          value: window.innerWidth > 768 ? 45 : 20, // Adaptive count
+          value: window.innerWidth > 768 ? 40 : 12, // Further reduced for mobile
         },
         opacity: {
-          value: window.innerWidth > 768 ? { min: 0.05, max: 0.15 } : { min: 0.1, max: 0.3 }, // More visible on mobile
+          value: window.innerWidth > 768 ? { min: 0.05, max: 0.15 } : 0.2, // Static on mobile
           animation: {
-            enable: window.innerWidth > 768, // Disable animation on mobile
+            enable: window.innerWidth > 768, 
             speed: 0.5,
             sync: false,
           }

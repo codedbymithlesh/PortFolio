@@ -4,9 +4,9 @@ import './AnimatedGrid.css';
 const AnimatedGrid = React.memo(() => {
   const horizontalStreaks = useMemo(() => {
     const isDesktop = window.innerWidth > 768;
-    const count = isDesktop ? 18 : 8;
+    const count = isDesktop ? 18 : 4; // Reduced for mobile
     const gridStep = 50;
-    const lineJump = isDesktop ? 3 : 6;
+    const lineJump = isDesktop ? 3 : 12; // Spread out more
     return [...Array(count)].map((_, i) => ({
       id: i,
       top: `${(i * lineJump + 1) * gridStep}px`,
@@ -17,9 +17,9 @@ const AnimatedGrid = React.memo(() => {
 
   const verticalStreaks = useMemo(() => {
     const isDesktop = window.innerWidth > 768;
-    const count = isDesktop ? 18 : 8;
+    const count = isDesktop ? 18 : 4; // Drastically reduced for mobile
     const gridStep = 50;
-    const lineJump = isDesktop ? 3 : 6;
+    const lineJump = isDesktop ? 3 : 12; // Spread out more on mobile
     return [...Array(count)].map((_, i) => ({
       id: i,
       left: `${(i * lineJump + 1) * gridStep}px`,
