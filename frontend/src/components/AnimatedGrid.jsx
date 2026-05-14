@@ -2,21 +2,31 @@ import React, { useMemo } from 'react';
 import './AnimatedGrid.css';
 
 const AnimatedGrid = React.memo(() => {
-  const horizontalStreaks = useMemo(() => 
-    [...Array(window.innerWidth > 768 ? 15 : 6)].map((_, i) => ({
+  const horizontalStreaks = useMemo(() => {
+    const isDesktop = window.innerWidth > 768;
+    const count = isDesktop ? 18 : 8;
+    const gridStep = 50;
+    const lineJump = isDesktop ? 3 : 6;
+    return [...Array(count)].map((_, i) => ({
       id: i,
-      top: `${(i + 1) * (window.innerWidth > 768 ? 150 : 280)}px`,
+      top: `${(i * lineJump + 1) * gridStep}px`,
       delay: `${Math.random() * 10}s`,
-      duration: `${Math.random() * 5 + 10}s`
-    })), []);
+      duration: `${Math.random() * 5 + 12}s`
+    }));
+  }, []);
 
-  const verticalStreaks = useMemo(() => 
-    [...Array(window.innerWidth > 768 ? 15 : 6)].map((_, i) => ({
+  const verticalStreaks = useMemo(() => {
+    const isDesktop = window.innerWidth > 768;
+    const count = isDesktop ? 18 : 8;
+    const gridStep = 50;
+    const lineJump = isDesktop ? 3 : 6;
+    return [...Array(count)].map((_, i) => ({
       id: i,
-      left: `${(i + 1) * (window.innerWidth > 768 ? 150 : 280)}px`,
+      left: `${(i * lineJump + 1) * gridStep}px`,
       delay: `${Math.random() * 10}s`,
-      duration: `${Math.random() * 5 + 10}s`
-    })), []);
+      duration: `${Math.random() * 5 + 12}s`
+    }));
+  }, []);
 
   return (
     <div className="animated-grid-container">

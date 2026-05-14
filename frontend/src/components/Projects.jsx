@@ -23,7 +23,12 @@ const FeaturedBuilds = React.memo(() => {
       <div className="builds-grid">
         {displayedProjects.map((project, i) => (
           <div key={i} className="card build-card reveal">
-            <h3 className="card-title">{project.title}</h3>
+            {project.previewImage && (
+              <div className="project-image-container">
+                <img src={project.previewImage} alt={project.title} className="project-image" />
+              </div>
+            )}
+            <h3 className="card-title" style={{ marginTop: project.previewImage ? '1rem' : '0' }}>{project.title}</h3>
             <div className="pill-container mb-3">
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
             </div>

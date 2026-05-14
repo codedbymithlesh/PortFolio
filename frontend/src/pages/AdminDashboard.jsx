@@ -52,6 +52,7 @@ function useSave(section, value, updatePortfolio, setGlobalSave, isDirty) {
 /* ══════════════════════ TAB PANELS ══════════════════════ */
 
 function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
+  const { API } = usePortfolio();
   const [hero, setHero] = useState({ ...portfolio.hero });
   const isDirty = JSON.stringify(hero) !== JSON.stringify(portfolio.hero);
   const [status, save] = useSave('hero', hero, updatePortfolio, setGlobalSave, isDirty);
@@ -66,8 +67,7 @@ function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
     formData.append('image', file);
     try {
       const token = localStorage.getItem('admin_token');
-      const baseUrl = 'https://port-folio-backend-file.vercel.app';
-      const res = await fetch(`${baseUrl}/api/upload/profile`, {
+      const res = await fetch(`${API}/upload/profile`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -313,9 +313,46 @@ function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
     next[pi] = { ...next[pi], tech: next[pi].tech.filter((_, idx) => idx !== ti) };
     setProjects(next);
   };
+  const [uploadingProj, setUploadingProj] = useState(null);
+
+  const handleProjectImageUpload = (i, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploadingProj(i);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.src = reader.result;
+      img.onload = () => {
+        // Create canvas for compression
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000; // Resize to max 1000px width
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress to 0.7 quality JPEG (smaller than PNG)
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        update(i, 'previewImage', compressedBase64);
+        setUploadingProj(null);
+      };
+    };
+    reader.readAsDataURL(file);
+  };
+
   const scrollRef = useRef(null);
   const add = () => {
-    setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#' }]);
+    setProjects((p) => [...p, { title: '', tech: [], description: '', link: '#', previewImage: '' }]);
     setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
   };
   const remove = (i) => {
@@ -336,8 +373,30 @@ function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
               <span className="adm-card-row-num">Project #{i + 1}</span>
               <button className="adm-del-btn" onClick={() => remove(i)}>✕ Remove</button>
             </div>
-            <Field label="Project Title" value={proj.title} onChange={(v) => update(i, 'title', v)} />
-            <Field label="Project URL" value={proj.link} onChange={(v) => update(i, 'link', v)} />
+            
+            <div className="adm-grid-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <Field label="Project Title" value={proj.title} onChange={(v) => update(i, 'title', v)} />
+                <Field label="Project URL" value={proj.link} onChange={(v) => update(i, 'link', v)} />
+              </div>
+              <div className="adm-field">
+                <label className="adm-label">Preview Image</label>
+                <div className="adm-upload-box" style={{ height: '140px' }}>
+                  {proj.previewImage ? (
+                    <div className="adm-upload-preview" style={{ aspectRatio: '16/9', height: '100%', width: 'auto' }}>
+                      <img src={proj.previewImage} alt="preview" />
+                      <button className="adm-preview-del" onClick={() => update(i, 'previewImage', '')}>✕</button>
+                    </div>
+                  ) : (
+                    <label className="adm-upload-btn" htmlFor={`proj-upload-${i}`} style={{ height: '100%', width: '100%' }}>
+                      {uploadingProj === i ? <><FaHourglassHalf style={{marginRight: '6px'}} /> Uploading...</> : <><FaPlus style={{marginRight: '6px'}} /> Upload Image</>}
+                      <input id={`proj-upload-${i}`} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleProjectImageUpload(i, e)} disabled={uploadingProj !== null} />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <Field label="Description" value={proj.description} onChange={(v) => update(i, 'description', v)} textarea />
             <div className="adm-section-sub">
               <div className="adm-sub-header">

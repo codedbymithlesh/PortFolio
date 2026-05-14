@@ -476,6 +476,7 @@
   border-radius: 13px;
 }
 .adm-upload-preview {
+  position: relative;
   width: 88px; height: 88px;
   border-radius: 50%;
   overflow: hidden;
@@ -484,6 +485,22 @@
   flex-shrink: 0;
 }
 .adm-upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+.adm-preview-del {
+  position: absolute;
+  top: 5px; right: 5px;
+  background: rgba(127, 29, 29, 0.85);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.adm-preview-del:hover { background: #DC2626; }
 .adm-upload-btn {
   display: inline-flex;
   align-items: center;

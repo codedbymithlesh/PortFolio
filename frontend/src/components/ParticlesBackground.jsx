@@ -55,7 +55,7 @@ const ParticlesBackground = React.memo(() => {
           value: ['#DC2626', '#F87171', '#D97706', '#FCD34D', '#ffffff'],
         },
         links: {
-          enable: true,
+          enable: window.innerWidth > 768, // Disable links on mobile for a cleaner look
           distance: 180,
           color: '#ffffff',
           opacity: 0.1,
@@ -79,7 +79,7 @@ const ParticlesBackground = React.memo(() => {
           value: window.innerWidth > 768 ? 45 : 20, // Adaptive count
         },
         opacity: {
-          value: { min: 0.05, max: 0.15 },
+          value: window.innerWidth > 768 ? { min: 0.05, max: 0.15 } : { min: 0.1, max: 0.3 }, // More visible on mobile
           animation: {
             enable: window.innerWidth > 768, // Disable animation on mobile
             speed: 0.5,
@@ -90,7 +90,7 @@ const ParticlesBackground = React.memo(() => {
           type: 'circle',
         },
         size: {
-          value: { min: 1, max: 3 },
+          value: window.innerWidth > 768 ? { min: 1, max: 3 } : { min: 0.5, max: 1.5 }, // Smaller, sharper dots for mobile
           animation: {
             enable: window.innerWidth > 768, // Disable animation on mobile
             speed: 2,

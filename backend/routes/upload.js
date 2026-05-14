@@ -24,14 +24,14 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, '../uploads');
     if (!fs.existsSync(uploadPath) && process.env.NODE_ENV !== 'production') {
-       // Only try to create if not in production/serverless
-       try { fs.mkdirSync(uploadPath); } catch (e) {}
+       try { fs.mkdirSync(uploadPath, { recursive: true }); } catch (e) {}
     }
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `profile_${Date.now()}${ext}`);
+    const prefix = req.body.type || 'upload';
+    cb(null, `${prefix}_${Date.now()}${ext}`);
   },
 });
 
@@ -47,6 +47,15 @@ const upload = multer({
 
 // POST /api/upload/profile — upload profile picture
 router.post('/profile', authMiddleware, upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.get('host');
+  const url = `${protocol}://${host}/uploads/${req.file.filename}`;
+  res.json({ url, filename: req.file.filename });
+});
+
+// POST /api/upload/project — upload project preview
+router.post('/project', authMiddleware, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
   const protocol = req.headers['x-forwarded-proto'] || req.protocol;
   const host = req.get('host');

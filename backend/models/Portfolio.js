@@ -28,6 +28,7 @@ const portfolioSchema = new mongoose.Schema({
   projects: [
     {
       icon: { type: String, default: '🚀' },
+      previewImage: { type: String, default: '' },
       title: String,
       tech: [String],
       description: String,
