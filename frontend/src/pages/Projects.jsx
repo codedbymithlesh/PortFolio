@@ -15,7 +15,28 @@ const Projects = () => {
     return <Preloader loading={true} />;
   }
 
-  const { projects } = portfolio;
+  const allProjects = React.useMemo(() => [...(portfolio.projects || [])].reverse(), [portfolio.projects]);
+  const [visibleCount, setVisibleCount] = React.useState(6);
+  const observerTarget = React.useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < allProjects.length) {
+          setVisibleCount((prev) => prev + 3);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [visibleCount, allProjects.length]);
+
+  const displayedProjects = allProjects.slice(0, visibleCount);
 
   return (
     <div className="app-container" style={{ minHeight: '100vh', padding: '2rem 5%' }}>
@@ -28,7 +49,7 @@ const Projects = () => {
       <h1 className="section-title" style={{ fontSize: '3rem', marginBottom: '3rem' }}>All Projects</h1>
 
       <div className="builds-grid">
-        {(projects || []).map((project, i) => (
+        {displayedProjects.map((project, i) => (
           <div key={i} className="card build-card">
             <h3 className="card-title">{project.title}</h3>
             <div className="pill-container mb-3">
@@ -41,8 +62,16 @@ const Projects = () => {
           </div>
         ))}
       </div>
+
+      <div ref={observerTarget} style={{ height: '20px', margin: '2rem 0' }}>
+        {visibleCount < allProjects.length && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className="adm-spinner-big" style={{ width: '30px', height: '30px' }}></div>
+          </div>
+        )}
+      </div>
       
-      {(projects && projects.length === 0) && (
+      {(allProjects && allProjects.length === 0) && (
         <p style={{ color: '#9CA3AF', textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
           No projects available at the moment.
         </p>

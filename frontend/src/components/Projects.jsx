@@ -6,15 +6,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 const FeaturedBuilds = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { projects } = portfolio;
-  const [visibleCount, setVisibleCount] = React.useState(6);
-  
-  const allProjects = projects || [];
-  const displayedProjects = React.useMemo(() => allProjects.slice(0, visibleCount), [allProjects, visibleCount]);
-  const hasMore = allProjects.length > visibleCount;
-
-  const handleLoadMore = React.useCallback(() => {
-    setVisibleCount(allProjects.length);
-  }, [allProjects.length]);
+  const displayedProjects = React.useMemo(() => [...(projects || [])].reverse().slice(0, 6), [projects]);
 
   return (
     <section id="builds" className="builds-section mt-5">
@@ -23,12 +15,16 @@ const FeaturedBuilds = React.memo(() => {
       <div className="builds-grid">
         {displayedProjects.map((project, i) => (
           <div key={i} className="card build-card reveal">
-            {project.previewImage && (
-              <div className="project-image-container">
+            <div className="project-image-container">
+              {project.previewImage ? (
                 <img src={project.previewImage} alt={project.title} className="project-image" />
-              </div>
-            )}
-            <h3 className="card-title" style={{ marginTop: project.previewImage ? '1rem' : '0' }}>{project.title}</h3>
+              ) : (
+                <div className="no-preview">
+                  <span className="no-preview-text">No Preview Available</span>
+                </div>
+              )}
+            </div>
+            <h3 className="card-title" style={{ marginTop: '1.25rem' }}>{project.title}</h3>
             <div className="pill-container mb-3">
               {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
             </div>
@@ -40,8 +36,8 @@ const FeaturedBuilds = React.memo(() => {
         ))}
       </div>
       
-      {hasMore && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
+      {projects?.length > 6 && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
           <Link 
             to="/all-projects" 
             className="btn-primary reveal" 
