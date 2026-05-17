@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaArrowLeft, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 import Preloader from '../components/Preloader';
 
@@ -10,10 +10,6 @@ const Projects = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  if (loading) {
-    return <Preloader loading={true} />;
-  }
 
   const allProjects = React.useMemo(() => [...(portfolio.projects || [])].reverse(), [portfolio.projects]);
   const [visibleCount, setVisibleCount] = React.useState(6);
@@ -36,64 +32,78 @@ const Projects = () => {
     return () => observer.disconnect();
   }, [visibleCount, allProjects.length]);
 
+  if (loading) {
+    return <Preloader loading={true} />;
+  }
+
   const displayedProjects = allProjects.slice(0, visibleCount);
 
   return (
-    <div className="app-container" style={{ minHeight: '100vh', padding: '2rem 5%' }}>
-      <div style={{ marginBottom: '3rem' }}>
-        <Link to="/" className="view-link" style={{ fontSize: '1.1rem', display: 'inline-flex', alignItems: 'center' }}>
-          <FaArrowLeft className="mr-2" style={{ marginRight: '0.5rem' }} /> Back to Home
-        </Link>
+    <div className="archive-page-wrapper">
+      <div className="archive-header reveal">
+        <div className="archive-breadcrumbs">
+          <Link to="/">Home</Link>
+          <span className="breadcrumb-separator">/</span>
+          <span className="breadcrumb-current">Projects Archive</span>
+        </div>
+        <h1 className="archive-main-title">All Projects</h1>
+        <p className="archive-subtitle">A comprehensive archive of production applications, tools, and technical experiments I have engineered.</p>
       </div>
-      
-      <h1 className="section-title" style={{ fontSize: '3rem', marginBottom: '3rem' }}>All Projects</h1>
 
-      <div className="builds-grid">
+      <div className="archive-grid">
         {displayedProjects.map((project, i) => (
-          <div key={i} className="card build-card">
-            <h3 className="card-title">{project.title}</h3>
-            <div className="pill-container mb-3">
-              {(project.tech || []).map((t, j) => <span key={j} className="pill small">{t}</span>)}
+          <div key={i} className="archive-card reveal">
+            <div className="archive-image-wrapper">
+              {project.previewImage ? (
+                <img src={project.previewImage} alt={project.title} className="archive-image" />
+              ) : (
+                <div className="no-preview showcase-no-preview">
+                  <span className="no-preview-text">Masterpiece in Progress</span>
+                </div>
+              )}
+              <div className="archive-overlay"></div>
             </div>
-            <p className="card-text flex-grow">{project.description}</p>
-            <div className="flex gap-2 mt-3" style={{ display: 'flex', gap: '0.8rem', marginTop: '1.25rem' }}>
-              {/* Live Button */}
-              {project.link && project.link !== '#' ? (
-                <a href={project.link} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} target="_blank" rel="noopener noreferrer">
-                  Live
-                </a>
-              ) : (
-                <button className="btn-primary" style={{ flex: 1, opacity: 0.3, cursor: 'not-allowed', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} disabled>
-                  Live
-                </button>
-              )}
+            
+            <div className="archive-content">
+              <h3 className="archive-title">{project.title}</h3>
+              <div className="showcase-tags mb-3">
+                {(project.tech || []).slice(0, 3).map((t, j) => (
+                  <span key={j} className="showcase-tag">{t}</span>
+                ))}
+              </div>
+              <p className="archive-desc">{project.description}</p>
+              
+              <div className="archive-actions">
+                {project.link && project.link !== '#' ? (
+                  <a href={project.link} className="showcase-btn primary" target="_blank" rel="noopener noreferrer">
+                    <FaExternalLinkAlt /> Live
+                  </a>
+                ) : (
+                  <span className="showcase-btn disabled">Private</span>
+                )}
 
-              {/* Code Button */}
-              {project.codeLink && project.codeLink !== '#' ? (
-                <a href={project.codeLink} className="btn-primary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} target="_blank" rel="noopener noreferrer">
-                  Code
-                </a>
-              ) : (
-                <button className="btn-primary" style={{ flex: 1, opacity: 0.3, cursor: 'not-allowed', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0.5rem', fontSize: '0.9rem' }} disabled>
-                  Code
-                </button>
-              )}
+                {project.codeLink && project.codeLink !== '#' ? (
+                  <a href={project.codeLink} className="showcase-btn secondary" target="_blank" rel="noopener noreferrer">
+                    <FaCode /> Code
+                  </a>
+                ) : (
+                  <span className="showcase-btn disabled">Private</span>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div ref={observerTarget} style={{ height: '20px', margin: '2rem 0' }}>
+      <div ref={observerTarget} style={{ height: '50px', margin: '4rem 0', display: 'flex', justifyContent: 'center' }}>
         {visibleCount < allProjects.length && (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className="adm-spinner-big" style={{ width: '30px', height: '30px' }}></div>
-          </div>
+          <div className="adm-spinner-big" style={{ width: '40px', height: '40px', borderTopColor: 'var(--accent-red)' }}></div>
         )}
       </div>
       
       {(allProjects && allProjects.length === 0) && (
         <p style={{ color: '#9CA3AF', textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
-          No projects available at the moment.
+          The archive is currently empty. Check back soon!
         </p>
       )}
     </div>

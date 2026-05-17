@@ -1,16 +1,10 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate, BrowserRouter as Router } from 'react-router-dom';
 import { FaWifi, FaRedo } from 'react-icons/fa';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Lazy load non-critical pages
-const AdminLogin = lazy(() => import('./pages/AdminLogin'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const Projects = lazy(() => import('./pages/Projects'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-
+// Components
 import ParticlesBackground from './components/ParticlesBackground';
 import AnimatedGrid from './components/AnimatedGrid';
 import Navbar from './components/Navbar';
@@ -22,97 +16,23 @@ import FeaturedBuilds from './components/Projects';
 import Contact from './components/Contact';
 import Preloader from './components/Preloader';
 
+// Pages
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+import ProjectsPage from './pages/Projects';
+const NotFound = lazy(() => import('./pages/NotFound'));
+
 import './admin.css';
 
-import { useLocation, useNavigate } from 'react-router-dom';
-
-function Portfolio() {
+const MainLayout = ({ children }) => {
   const { portfolio, loading, error } = usePortfolio();
   const location = useLocation();
-  const navigate = useNavigate();
+  const isAdmin = location.pathname.startsWith('/admin');
 
-  // Handle Title
-  React.useEffect(() => {
-    if (portfolio.hero.name) {
-      document.title = `${portfolio.hero.name} | Portfolio`;
-    }
-  }, [portfolio.hero.name]);
+  // Scroll Reveal Observer
+  useEffect(() => {
+    if (loading || isAdmin) return;
 
-  // Memoized Section Data
-  const sections = React.useMemo(() => [
-    { id: 'home', path: '/' },
-    { id: 'universe', path: '/about' },
-    { id: 'tech', path: '/skills' },
-    { id: 'builds', path: '/projects' },
-    { id: 'contact', path: '/contact' }
-  ], []);
-
-  const sectionMap = React.useMemo(() => ({
-    'about': 'universe',
-    'skills': 'tech',
-    'projects': 'builds',
-    'contact': 'contact'
-  }), []);
-
-  // Handle deep linking (scroll to section on load/path change)
-  React.useEffect(() => {
-    const path = location.pathname.replace('/', '');
-    if (!path) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    const targetId = sectionMap[path];
-    if (targetId) {
-      const scrollTimer = setTimeout(() => {
-        const el = document.getElementById(targetId);
-        if (el) {
-          const offset = 100; // Adjust for sticky navbar
-          const bodyRect = document.body.getBoundingClientRect().top;
-          const elementRect = el.getBoundingClientRect().top;
-          const elementPosition = elementRect - bodyRect;
-          const offsetPosition = elementPosition - offset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-      return () => clearTimeout(scrollTimer);
-    }
-  }, [location.pathname, sectionMap]);
-
-  // Handle URL update on scroll (Scroll Spy)
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const section = sections.find((s) => s.id === entry.target.id);
-            if (section && window.location.pathname !== section.path) {
-              window.history.replaceState(null, '', section.path);
-            }
-          }
-        });
-      },
-      { rootMargin: '-40% 0px -40% 0px' }
-    );
-
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [sections]);
-
-  // Protection: Disable Right Click on Portfolio
-  React.useEffect(() => {
-    const handleContextMenu = (e) => e.preventDefault();
-    document.addEventListener('contextmenu', handleContextMenu);
-
-    // Intersection Observer for Scroll Reveal
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -122,12 +42,8 @@ function Portfolio() {
     }, { threshold: 0.1 });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-      observer.disconnect();
-    };
-  }, [loading]); // Re-run when loading finishes to catch newly rendered elements
+    return () => observer.disconnect();
+  }, [loading, children, isAdmin]);
 
   if (error) {
     return (
@@ -138,6 +54,15 @@ function Portfolio() {
         <button className="btn-primary" onClick={() => window.location.reload()}>
           <FaRedo style={{marginRight: '8px'}} /> Try Again
         </button>
+      </div>
+    );
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="admin-layout-root no-copy">
+        <Preloader loading={loading} />
+        {children}
       </div>
     );
   }
@@ -155,45 +80,114 @@ function Portfolio() {
       <div className="app-container">
         <Navbar />
         <main className="main-content">
-          <div className="reveal"><Hero /></div>
-          <section id="universe" className="section-grid reveal">
-            <MyUniverse />
-            <Education />
-          </section>
-          <div className="reveal"><TechArsenal /></div>
-          <div className="reveal"><FeaturedBuilds /></div>
-          <div className="reveal"><Contact /></div>
+          {children}
         </main>
       </div>
     </div>
   );
-}
+};
+
+const Portfolio = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (pathname === '/' || pathname === '') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (pathname === '/about') {
+      document.getElementById('universe')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (pathname === '/skills') {
+      document.getElementById('tech')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (pathname === '/projects') {
+      document.getElementById('builds')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (pathname === '/contact') {
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    // Holographic Sheen for Cards
+    const handleMouseMove = (e) => {
+      const cards = document.querySelectorAll('.card, .showcase-text-box, .archive-card');
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      // Magnetic Buttons
+      const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .showcase-btn, .action-btn');
+      buttons.forEach((btn) => {
+        const rect = btn.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distanceX = e.clientX - centerX;
+        const distanceY = e.clientY - centerY;
+        const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
+
+        if (distance < 100) {
+          const pushX = distanceX * 0.15;
+          const pushY = distanceY * 0.15;
+          btn.style.transform = `translate(${pushX}px, ${pushY}px) scale(1.05)`;
+        } else {
+          btn.style.transform = '';
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <>
+      <div className="reveal"><Hero /></div>
+      <section id="universe" className="about-dashboard reveal">
+        <div className="about-main">
+          <MyUniverse showSummaryOnly={true} />
+        </div>
+        <div className="about-side">
+          <MyUniverse showStrengthsOnly={true} />
+        </div>
+        <div className="about-bottom">
+          <Education />
+        </div>
+      </section>
+      <div className="reveal"><TechArsenal /></div>
+      <div className="reveal"><FeaturedBuilds /></div>
+      <div className="reveal"><Contact /></div>
+    </>
+  );
+};
 
 function App() {
   return (
     <Router>
       <PortfolioProvider>
-        <Suspense fallback={<Preloader loading={true} />}>
-          <Routes>
-            <Route path="/" element={<Portfolio />} />
-            <Route path="/about" element={<Portfolio />} />
-            <Route path="/skills" element={<Portfolio />} />
-            <Route path="/projects" element={<Portfolio />} />
-            <Route path="/contact" element={<Portfolio />} />
-            <Route path="/all-projects" element={<Projects />} />
-            
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <MainLayout>
+          <Suspense fallback={<Preloader loading={true} />}>
+            <Routes>
+              <Route path="/" element={<Portfolio />} />
+              <Route path="/about" element={<Portfolio />} />
+              <Route path="/skills" element={<Portfolio />} />
+              <Route path="/projects" element={<Portfolio />} />
+              <Route path="/contact" element={<Portfolio />} />
+              <Route path="/all-projects" element={<ProjectsPage />} />
+              
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </MainLayout>
       </PortfolioProvider>
     </Router>
   );

@@ -60,36 +60,48 @@ const Contact = React.memo(() => {
           </div>
         </div>
 
-        <div className="card contact-form-card">
-          <h3 className="card-title">Send a Message</h3>
-          <form className="contact-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <input type="text" placeholder="Full Name" className="form-input" required 
-                value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+        <div className="card terminal-card">
+          <div className="terminal-header">
+            <div className="terminal-dots">
+              <span className="dot red"></span>
+              <span className="dot yellow"></span>
+              <span className="dot green"></span>
             </div>
-            <div className="form-group">
-              <input type="email" placeholder="Email Address" className="form-input" required 
-                value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-            </div>
-            <div className="form-group">
-              <textarea 
-                placeholder="How can I help you?" 
-                className="form-input form-textarea" 
-                required
-                rows={5}
-                value={formData.message} 
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-              />
-            </div>
-            <button type="submit" className="btn-primary w-100 flex-center" disabled={status.loading}>
-              {status.loading ? 'Sending...' : <>Send Message <FaPaperPlane className="ml-2" /></>}
-            </button>
-            {status.message && (
-              <div className={`mt-3 p-2 rounded flex-center ${status.type === 'success' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}`} style={{gap: '8px', border: `1px solid ${status.type === 'success' ? '#10b981' : '#ef4444'}`, color: status.type === 'success' ? '#10b981' : '#ef4444'}}>
-                {status.type === 'success' ? <FaCheckCircle /> : <FaExclamationCircle />} {status.message}
+            <span className="terminal-title">~/initiate_connection.sh</span>
+          </div>
+          <div className="terminal-body">
+            <form className="contact-form" onSubmit={handleSubmit}>
+              <div className="form-group terminal-input-group">
+                <span className="prompt">$&gt;</span>
+                <input type="text" placeholder="Enter Full Name..." className="form-input terminal-input" required 
+                  value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
               </div>
-            )}
-          </form>
+              <div className="form-group terminal-input-group">
+                <span className="prompt">$&gt;</span>
+                <input type="email" placeholder="Enter Email Address..." className="form-input terminal-input" required 
+                  value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              </div>
+              <div className="form-group terminal-input-group align-top">
+                <span className="prompt">$&gt;</span>
+                <textarea 
+                  placeholder="How can I help you?..." 
+                  className="form-input terminal-input form-textarea" 
+                  required
+                  rows={4}
+                  value={formData.message} 
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                />
+              </div>
+              <button type="submit" className="btn-primary w-100 flex-center terminal-btn" disabled={status.loading}>
+                {status.loading ? 'Executing...' : <>[ Execute ] <FaPaperPlane className="ml-2" /></>}
+              </button>
+              {status.message && (
+                <div className={`mt-3 p-2 rounded flex-center ${status.type === 'success' ? 'text-success' : 'text-danger'}`} style={{gap: '8px', color: status.type === 'success' ? '#10b981' : '#ef4444', fontFamily: 'monospace'}}>
+                  {status.type === 'success' ? <FaCheckCircle /> : <FaExclamationCircle />} {status.message}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
     </section>

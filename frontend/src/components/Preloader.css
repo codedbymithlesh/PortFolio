@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000005;
+  background: #020008;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -32,8 +32,8 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  border: 1px solid rgba(220, 38, 38, 0.1);
-  border-top: 1px solid #DC2626;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-top: 1px solid #8B5CF6;
   border-radius: 50%;
   animation: loader-spin 1s linear infinite;
 }
@@ -51,7 +51,7 @@
   font-family: var(--font-heading);
   font-size: 0.8rem;
   font-weight: 500;
-  color: #6B6880;
+  color: #94A3B8;
   letter-spacing: 3px;
   text-transform: uppercase;
   animation: status-fade 2s ease-in-out infinite;
