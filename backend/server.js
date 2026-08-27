@@ -77,21 +77,6 @@ app.get('/', (req, res) => res.json({
   mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
 }));
 
-// DEBUG - REMOVE AFTER USE
-app.get('/api/debug/env', (req, res) => {
-  res.json({
-    MONGO_URL: process.env.MONGO_URL || '',
-    JWT_SECRET: process.env.JWT_SECRET || '',
-    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
-    RECOVERY_EMAIL: process.env.RECOVERY_EMAIL || '',
-    EMAIL_USER: process.env.EMAIL_USER || '',
-    EMAIL_PASS: process.env.EMAIL_PASS || '',
-    ADMIN_EMAIL: process.env.ADMIN_EMAIL || '',
-    NODE_ENV: process.env.NODE_ENV || '',
-    PORT: process.env.PORT || ''
-  });
-});
-
 // Start server only if not in production
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
