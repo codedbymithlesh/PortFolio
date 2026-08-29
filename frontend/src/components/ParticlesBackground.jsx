@@ -52,12 +52,12 @@ const ParticlesBackground = React.memo(() => {
       },
       particles: {
         color: {
-          value: ['#DC2626', '#F87171', '#D97706', '#FCD34D', '#ffffff'],
+          value: ['#4CC1AA', '#6dd4be', '#569cd6', '#ffffff', '#4ec9b0'],
         },
         links: {
           enable: window.innerWidth > 768, // Disable links on mobile for a cleaner look
           distance: 180,
-          color: '#ffffff',
+          color: '#4CC1AA',
           opacity: 0.1,
           width: 1,
         },

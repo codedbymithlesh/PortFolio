@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { FaEnvelope, FaMapMarkerAlt, FaGithub, FaLinkedin, FaYoutube, FaPaperPlane, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
+import WaveLayers from './WaveLayers';
 
 const Contact = React.memo(() => {
   const { portfolio, API } = usePortfolio();
   const { contact } = portfolio;
-  
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState({ loading: false, type: '', message: '' });
 
@@ -32,75 +32,86 @@ const Contact = React.memo(() => {
   }, [API, formData]);
 
   return (
-    <section id="contact" className="contact-section mt-5">
-      <h2 className="section-title">Initialize Connection</h2>
+    <section id="contact" className="contact-section">
+      <div className="section-label">contact.init</div>
+      <h2 className="section-title">Get In Touch</h2>
+      <p className="section-subtitle">Have a project in mind? Let's talk.</p>
 
       <div className="contact-grid">
         <div className="contact-info">
-          <div className="card info-card mb-3">
-            <FaEnvelope className="info-icon text-cyan" />
+          <div className="card info-card liquid-wave">
+            <WaveLayers />
+            <FaEnvelope className="info-icon" />
             <div>
-              <span className="info-label">Email Me</span>
+              <span className="info-label">email</span>
               <p className="info-value">{contact.email}</p>
             </div>
           </div>
-
-          <div className="card info-card mb-4">
-            <FaMapMarkerAlt className="info-icon text-cyan" />
+          <div className="card info-card liquid-wave" style={{marginTop:'0.5rem'}}>
+            <WaveLayers />
+            <FaMapMarkerAlt className="info-icon" />
             <div>
-              <span className="info-label">Location</span>
+              <span className="info-label">location</span>
               <p className="info-value">{contact.location}</p>
             </div>
           </div>
-
-          <div className="contact-socials">
+          <div className="contact-socials" style={{marginTop:'0.6rem'}}>
             <a href={contact.github || '#'} className="social-pill" target="_blank" rel="noopener noreferrer"><FaGithub /></a>
             <a href={contact.linkedin || '#'} className="social-pill" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
             <a href={contact.youtube || '#'} className="social-pill" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
           </div>
         </div>
 
-        <div className="card terminal-card">
-          <div className="terminal-header">
+        <div className="terminal-window liquid-wave">
+          <WaveLayers />
+          <div className="terminal-bar">
             <div className="terminal-dots">
-              <span className="dot red"></span>
-              <span className="dot yellow"></span>
-              <span className="dot green"></span>
+              <span className="dot r"></span>
+              <span className="dot y"></span>
+              <span className="dot g"></span>
             </div>
-            <span className="terminal-title">~/initiate_connection.sh</span>
+            <div className="terminal-tab">
+              <span className="caret">&gt;</span>
+              <span>bash — contact</span>
+            </div>
           </div>
           <div className="terminal-body">
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-group terminal-input-group">
-                <span className="prompt">$&gt;</span>
-                <input type="text" placeholder="Enter Full Name..." className="form-input terminal-input" required 
+            <div className="terminal-line">
+              <span className="prompt-char">$</span> <span className="cmd">./send_message.sh</span>
+            </div>
+            <div className="terminal-line" style={{marginBottom:'0.6rem'}}>
+              <span className="output">{'// fill in the fields below'}</span>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                <span className="label">name:</span>
+                <input type="text" className="terminal-input" placeholder="your name" required
                   value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
               </div>
-              <div className="form-group terminal-input-group">
-                <span className="prompt">$&gt;</span>
-                <input type="email" placeholder="Enter Email Address..." className="form-input terminal-input" required 
+              <div className="form-row">
+                <span className="label">email:</span>
+                <input type="email" className="terminal-input" placeholder="you@example.com" required
                   value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
               </div>
-              <div className="form-group terminal-input-group align-top">
-                <span className="prompt">$&gt;</span>
-                <textarea 
-                  placeholder="How can I help you?..." 
-                  className="form-input terminal-input form-textarea" 
-                  required
-                  rows={4}
-                  value={formData.message} 
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                />
+              <div className="form-row">
+                <span className="label" style={{alignSelf:'flex-start', paddingTop:'0.25rem'}}>message:</span>
+                <textarea className="terminal-textarea" placeholder="your message..." required
+                  value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} />
               </div>
-              <button type="submit" className="btn-primary w-100 flex-center terminal-btn" disabled={status.loading}>
-                {status.loading ? 'Executing...' : <>[ Execute ] <FaPaperPlane className="ml-2" /></>}
+              <button type="submit" className="terminal-submit" disabled={status.loading}>
+                {status.loading ? 'sending...' : 'send'}
               </button>
-              {status.message && (
-                <div className={`mt-3 p-2 rounded flex-center ${status.type === 'success' ? 'text-success' : 'text-danger'}`} style={{gap: '8px', color: status.type === 'success' ? '#10b981' : '#ef4444', fontFamily: 'monospace'}}>
-                  {status.type === 'success' ? <FaCheckCircle /> : <FaExclamationCircle />} {status.message}
-                </div>
-              )}
             </form>
+
+            {status.message && (
+              <div className="terminal-line" style={{marginTop:'0.6rem'}}>
+                {status.type === 'success'
+                  ? <span className="success"><FaCheckCircle /> {status.message}</span>
+                  : <span style={{color:'#f85149'}}><FaExclamationCircle /> {status.message}</span>
+                }
+              </div>
+            )}
           </div>
         </div>
       </div>

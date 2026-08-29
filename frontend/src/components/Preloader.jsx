@@ -8,7 +8,7 @@ const Preloader = React.memo(({ loading }) => {
   useEffect(() => {
     if (!loading) {
       setFadeOut(true);
-      const timer = setTimeout(() => setShow(false), 500); // match transition duration
+      const timer = setTimeout(() => setShow(false), 500);
       return () => clearTimeout(timer);
     }
   }, [loading]);
@@ -21,7 +21,12 @@ const Preloader = React.memo(({ loading }) => {
         <div className="loader-ring"></div>
         <div className="loader-logo">MR</div>
       </div>
-      <div className="loader-status">Loading...</div>
+      <div className="loader-status">
+        loading
+        <span className="loader-dots">
+          <span></span><span></span><span></span>
+        </span>
+      </div>
     </div>
   );
 });

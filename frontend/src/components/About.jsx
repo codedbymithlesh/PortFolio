@@ -1,6 +1,7 @@
 import React from 'react';
-import { FaBullseye } from 'react-icons/fa';
+import { FaFileCode } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
+import WaveLayers from './WaveLayers';
 
 const MyUniverse = React.memo(({ showSummaryOnly, showStrengthsOnly }) => {
   const { portfolio } = usePortfolio();
@@ -8,16 +9,17 @@ const MyUniverse = React.memo(({ showSummaryOnly, showStrengthsOnly }) => {
 
   if (showSummaryOnly) {
     return (
-      <div className="card h-100 bento-about-card">
-        <h2 className="section-title mb-4">About</h2>
-        <div className="professional-summary">
-          <h3 className="card-title text-gradient">Professional Summary</h3>
-          <p className="card-text large-text">{about.professionalSummary}</p>
-          <div className="divider my-4"></div>
-          <div className="premium-quote">
-            <span className="quote-mark">“</span>
-            <p className="quote-text italic-text">{about.quote}</p>
-            <span className="quote-icon-small"><FaBullseye /></span>
+      <div className="about-readme liquid-wave">
+        <WaveLayers />
+        <div className="readme-header">
+          <span className="icon"><FaFileCode /></span>
+          <span>about/README.md</span>
+        </div>
+        <div className="readme-body">
+          <h2>About Me</h2>
+          <p>{about.professionalSummary}</p>
+          <div className="readme-quote">
+            {about.quote}
           </div>
         </div>
       </div>
@@ -26,15 +28,27 @@ const MyUniverse = React.memo(({ showSummaryOnly, showStrengthsOnly }) => {
 
   if (showStrengthsOnly) {
     return (
-      <div className="card h-100 bento-about-card">
-        <h3 className="card-title text-gradient">Core Strengths & Passions</h3>
-        <p className="text-muted mb-3">The technical and creative pillars that drive my work.</p>
-        <div className="pill-container">
-          {(about.badges || []).map((b, i) => (
-            <span key={i} className={`skill-pill glow-${b.type === 'orange' ? 'cyan' : (b.type === 'blue' ? 'violet' : 'gold')}`}>
-              {b.label}
-            </span>
-          ))}
+      <div className="about-readme liquid-wave">
+        <WaveLayers />
+        <div className="readme-header">
+          <span className="icon"><FaFileCode /></span>
+          <span>skills.config.js</span>
+        </div>
+        <div className="readme-body">
+          <h2>Core Strengths</h2>
+          <p style={{fontSize:'0.82rem', color:'var(--text-dim)', marginBottom:'0.4rem', fontFamily:'var(--font-mono)'}}>
+            <span className="cm">{'// what drives my work'}</span>
+          </p>
+          <div className="pill-container">
+            {(about.badges || []).map((b, i) => {
+              const colorMap = { orange: 'orange', blue: 'purple', red: 'purple' };
+              return (
+                <span key={i} className={`skill-pill ${colorMap[b.type] || ''}`}>
+                  {b.label}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
     );

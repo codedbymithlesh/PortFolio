@@ -1,5 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { FaRegEnvelopeOpen, FaPlus, FaCheck, FaTrash } from 'react-icons/fa';
+import { FaInbox, FaPlus, FaCheck, FaTrash } from 'react-icons/fa';
+
+function MessageSkeleton({ count = 4 }) {
+  return (
+    <div className="adm-grid-2" style={{ alignItems: 'start' }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="adm-card-row adm-skeleton-card">
+          <div className="adm-card-row-header">
+            <div className="skel-avatar"></div>
+            <div style={{ flex: 1 }}>
+              <div className="skel-line skel-name"></div>
+              <div className="skel-line skel-date"></div>
+            </div>
+          </div>
+          <div className="skel-line skel-email"></div>
+          <div className="skel-block">
+            <div className="skel-line skel-msg1"></div>
+            <div className="skel-line skel-msg2"></div>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+            <div className="skel-btn"></div>
+            <div className="skel-btn skel-btn-del"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function MessagesTab() {
   const [messages, setMessages] = useState([]);
@@ -40,15 +67,15 @@ export default function MessagesTab() {
     setMessages(messages.filter(m => m._id !== id));
   };
 
-  if (loading) return <div>Loading messages...</div>;
-
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
-        <h3 className="adm-panel-title"><FaRegEnvelopeOpen style={{marginRight: '10px'}} /> Messages</h3>
-        <button className="adm-upload-btn" onClick={fetchMessages}><FaPlus style={{marginRight: '6px'}} /> Refresh</button>
+        <h3 className="adm-panel-title"><FaInbox style={{marginRight: '10px'}} /> Messages</h3>
+        {!loading && <button className="adm-upload-btn" onClick={fetchMessages}><FaPlus style={{marginRight: '6px'}} /> Refresh</button>}
       </div>
-      {messages.length === 0 ? (
+      {loading ? (
+        <MessageSkeleton />
+      ) : messages.length === 0 ? (
         <p style={{ color: '#6B6880' }}>No messages yet.</p>
       ) : (
         <div className="adm-grid-2" style={{ alignItems: 'start' }}>
