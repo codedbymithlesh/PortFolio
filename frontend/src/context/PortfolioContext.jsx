@@ -57,23 +57,26 @@ export function PortfolioProvider({ children }) {
   portfolioRef.current = portfolio;
 
   useEffect(() => {
-    fetch(`${API}/portfolio`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Server error');
-        return r.json();
-      })
-      .then((data) => {
-        if (data && data._id) {
-          const parsed = parsePortfolio(data);
-          setPortfolio(parsed);
-          portfolioRef.current = parsed;
+    const fetchWithRetry = async (retries = 3, delay = 2000) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const r = await fetch(`${API}/portfolio`);
+          if (!r.ok) throw new Error('Server error');
+          const data = await r.json();
+          if (data && data._id) {
+            const parsed = parsePortfolio(data);
+            setPortfolio(parsed);
+            portfolioRef.current = parsed;
+          }
+          return;
+        } catch (err) {
+          console.error(`Fetch attempt ${i + 1} failed:`, err.message);
+          if (i < retries - 1) await new Promise(res => setTimeout(res, delay));
         }
-      })
-      .catch((err) => {
-        console.error('Failed to fetch portfolio data', err);
-        setError('Please check your internet connection or try again later.');
-      })
-      .finally(() => setLoading(false));
+      }
+      setError('Please check your internet connection or try again later.');
+    };
+    fetchWithRetry().finally(() => setLoading(false));
   }, []);
 
   const updatePortfolio = useCallback(async (section, value) => {

@@ -10,9 +10,6 @@ const connectDB = require('./config/db');
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB immediately on startup
-connectDB();
-
 // Middleware to ensure DB is connected on each request (Vercel serverless)
 const mongoose = require('mongoose');
 app.use(async (req, res, next) => {
@@ -22,7 +19,9 @@ app.use(async (req, res, next) => {
 
 // Start server only if not in production
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  connectDB().then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  });
 }
 
 module.exports = app;

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
@@ -11,6 +12,12 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
+
+// Connect to MongoDB on every request (Vercel serverless cold start fix)
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
