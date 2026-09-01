@@ -1,21 +1,31 @@
 const mongoose = require('mongoose');
 
-let cachedDb = null;
-
 const connectDB = async () => {
-  if (cachedDb && mongoose.connection.readyState === 1) return;
+  const state = mongoose.connection.readyState;
+  // 0 = disconnected, 2 = connecting — only skip if fully connected (1)
+  if (state === 1) return;
 
   console.log('Connecting to MongoDB...');
   try {
-    const opts = {
+    await mongoose.connect(process.env.MONGO_URL, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
-    };
-    cachedDb = await mongoose.connect(process.env.MONGO_URL, opts);
+      autoReconnect: true,
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 3000,
+    });
     console.log('MongoDB Connected!');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
   }
 };
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected, will reconnect on next request...');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB error:', err.message);
+});
 
 module.exports = connectDB;
