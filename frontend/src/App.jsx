@@ -52,6 +52,7 @@ const MainLayout = ({ children }) => {
   }, [loading, isAdmin]);
 
   if (error) {
+    document.body.classList.remove('has-custom-cursor');
     return (
       <div className="error-screen">
         <FaWifi className="error-icon" />
