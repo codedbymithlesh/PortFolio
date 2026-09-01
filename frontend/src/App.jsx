@@ -52,15 +52,17 @@ const MainLayout = ({ children }) => {
   }, [loading, isAdmin]);
 
   if (error) {
-    document.body.classList.remove('has-custom-cursor');
     return (
-      <div className="error-screen">
-        <FaWifi className="error-icon" />
-        <h2 className="error-title">Connection Error</h2>
-        <p className="error-text">{error}</p>
-        <button className="btn-primary" onClick={() => window.location.reload()}>
-          <FaRedo style={{ marginRight: '8px' }} /> Try Again
-        </button>
+      <div className="no-copy">
+        <CustomCursor />
+        <div className="error-screen">
+          <FaWifi className="error-icon" />
+          <h2 className="error-title">Connection Error</h2>
+          <p className="error-text">{error}</p>
+          <button className="btn-primary" onClick={() => window.location.reload()}>
+            <FaRedo style={{ marginRight: '8px' }} /> Try Again
+          </button>
+        </div>
       </div>
     );
   }
