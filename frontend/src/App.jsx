@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useState, useCallback } from 'react';
 import { Routes, Route, useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { FaWifi, FaRedo } from 'react-icons/fa';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import TechnicalBackground from './components/TechnicalBackground';
@@ -185,9 +186,10 @@ const Portfolio = () => {
 
 function App() {
   return (
-    <Router>
-      <PortfolioProvider>
-        <MainLayout>
+    <ThemeProvider>
+      <Router>
+        <PortfolioProvider>
+          <MainLayout>
           <Suspense fallback={<Preloader loading={true} />}>
             <Routes>
               <Route path="/" element={<Portfolio />} />
@@ -204,6 +206,7 @@ function App() {
         </MainLayout>
       </PortfolioProvider>
     </Router>
+    </ThemeProvider>
   );
 }
 
