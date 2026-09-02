@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { useTheme } from '../context/ThemeContext';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaUser, FaCode, FaBriefcase, FaEnvelope, FaSun, FaMoon } from 'react-icons/fa';
+import { FaHome, FaUser, FaCode, FaBriefcase, FaEnvelope } from 'react-icons/fa';
 
 const BASE_NAV = [
   { path: '/', label: 'Home', icon: <FaHome /> },
@@ -15,7 +14,6 @@ const BASE_NAV = [
 const Navbar = React.memo(() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { portfolio } = usePortfolio();
-  const { theme, toggleTheme } = useTheme();
   const { hero } = portfolio;
   const location = useLocation();
   const activePath = location.pathname;
@@ -31,9 +29,6 @@ const Navbar = React.memo(() => {
         </Link>
 
         <div className="nav-right">
-          <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
-            {theme === 'dark' ? <FaSun /> : <FaMoon />}
-          </button>
           <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
             <Link to="/" className={activePath === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>home.jsx</Link>
             <Link to="/about" className={activePath === '/about' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>about.md</Link>
