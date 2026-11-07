@@ -38,3 +38,4 @@ Thumbs.db
 # Backend specific
 backend/uploads/*
 !backend/uploads/.gitkeep
+docs/
