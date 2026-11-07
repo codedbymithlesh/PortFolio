@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { FaTools, FaPlus, FaLightbulb, FaTrash } from 'react-icons/fa';
+import { useState, useRef } from 'react';
+import { FaTools, FaPlus, FaLightbulb } from 'react-icons/fa';
 import { useSave } from './AdminCommon';
 
 // Curated dictionary of popular technical suggestions
@@ -72,12 +72,12 @@ const SkillList = ({ category, label, skills, setSkills }) => {
           gap: '6px', 
           fontSize: '0.7rem', 
           fontWeight: 800, 
-          color: 'var(--adm-text-dark)', 
+          color: 'var(--adm-text-dim)', 
           textTransform: 'uppercase', 
           marginBottom: '0.75rem', 
           letterSpacing: '1px' 
         }}>
-          <FaLightbulb style={{ color: 'var(--adm-accent-gold)' }} /> Quick Suggestions
+          <FaLightbulb style={{ color: 'var(--adm-accent)' }} /> Quick Suggestions
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
           {SUGGESTIONS[category].map((tech) => {
@@ -95,9 +95,9 @@ const SkillList = ({ category, label, skills, setSkills }) => {
                   borderRadius: '6px',
                   opacity: isAdded ? 0.35 : 1,
                   cursor: isAdded ? 'default' : 'pointer',
-                  background: isAdded ? 'transparent' : 'rgba(253, 186, 116, 0.03)',
-                  borderColor: isAdded ? 'rgba(255,255,255,0.05)' : 'rgba(253, 186, 116, 0.15)',
-                  color: isAdded ? 'var(--adm-text-dark)' : 'var(--adm-accent-gold)',
+                  background: isAdded ? 'transparent' : 'rgba(255, 140, 89, 0.03)',
+                  borderColor: isAdded ? 'rgba(255,255,255,0.05)' : 'rgba(255, 140, 89, 0.15)',
+                  color: isAdded ? 'var(--adm-text-dim)' : 'var(--adm-accent)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -118,13 +118,13 @@ export default function SkillsTab({ portfolio, updatePortfolio, setGlobalSave })
     tools: [...(portfolio.skills.tools || [])],
   });
   const isDirty = JSON.stringify(skills) !== JSON.stringify(portfolio.skills);
-  const [status, save] = useSave('skills', skills, updatePortfolio, setGlobalSave, isDirty);
+  useSave('skills', skills, updatePortfolio, setGlobalSave, isDirty);
 
   return (
     <div className="adm-tab-panel">
       <div className="adm-panel-header">
         <h3 className="adm-panel-title">
-          <FaTools style={{ marginRight: '10px', color: 'var(--adm-accent-red)' }} /> 
+          <FaTools style={{ marginRight: '10px', color: 'var(--adm-accent)' }} /> 
           Tech Arsenal & Skills
         </h3>
       </div>

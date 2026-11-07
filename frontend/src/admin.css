@@ -1,33 +1,43 @@
-/* ══════════════════════════════════════════════════
-   ADMIN CONTROL PANEL — Code Editor Theme
-   Color: Deep Space Dark + #4CC1AA Green
-   ══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   ADMIN CONTROL PANEL — Unified with Main Design System
+   Color: Warm black / paper / ember accent
+   ═══════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --adm-bg: #0a0a10;
-  --adm-bg-card: #14141c;
-  --adm-bg-sidebar: #111118;
-  --adm-accent: #4CC1AA;
-  --adm-accent-light: #6dd4be;
-  --adm-accent-dim: rgba(76, 193, 170, 0.15);
-  --adm-border: #222230;
-  --adm-border-hover: rgba(76, 193, 170, 0.3);
-  --adm-text-main: #e4e4e8;
-  --adm-text-muted: #6a6a72;
-  --adm-text-dim: #444450;
-  --adm-font: 'Inter', sans-serif;
-  --adm-font-mono: 'JetBrains Mono', monospace;
+  /* Unified with main design tokens */
+  --adm-bg: var(--ink);
+  --adm-bg-card: var(--ink-2);
+  --adm-bg-sidebar: var(--ink-3);
+  --adm-accent: var(--accent);
+  --adm-accent-light: var(--accent-2);
+  --adm-border: var(--line);
+  --adm-text-main: var(--paper);
+  --adm-text-muted: var(--paper-3);
+  --adm-text-dim: var(--paper-3);
+  --adm-font: var(--font-body);
+  --adm-font-mono: var(--font-mono);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Global Scrollbar ── */
-.adm-root *::-webkit-scrollbar { width: 5px; height: 5px; }
-.adm-root *::-webkit-scrollbar-track { background: transparent; }
-.adm-root *::-webkit-scrollbar-thumb { background: #2a2a34; border-radius: 10px; }
+.adm-root *::-webkit-scrollbar { width: 9px; height: 9px; }
+.adm-root *::-webkit-scrollbar-track { background: var(--adm-bg); }
+.adm-root *::-webkit-scrollbar-thumb { background: #2a2724; border-radius: 20px; }
 .adm-root *::-webkit-scrollbar-thumb:hover { background: var(--adm-accent); }
+
+.adm-root * {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2724 var(--adm-bg);
+}
+
+/* ── Focus Visible ── */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 4px;
+}
 
 /* ══════════════════════════════════════════════════
    ADMIN — Login Page
@@ -39,8 +49,8 @@
   justify-content: center;
   background: var(--adm-bg);
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(76, 193, 170, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(76, 193, 170, 0.03) 0%, transparent 60%);
+    radial-gradient(ellipse at 50% 0%, rgba(255, 140, 89, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 140, 89, 0.03) 0%, transparent 60%);
   padding: 2rem;
   font-family: var(--adm-font);
 }
@@ -63,7 +73,7 @@
   inset: 0;
   border-radius: 8px;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(76, 193, 170, 0.3) 0%, transparent 50%, rgba(76, 193, 170, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 89, 0.3) 0%, transparent 50%, rgba(255, 140, 89, 0.1) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -85,7 +95,7 @@
   display: inline-block;
   margin-bottom: 0.8rem;
   color: var(--adm-accent);
-  filter: drop-shadow(0 0 12px rgba(76, 193, 170, 0.4));
+  filter: drop-shadow(0 0 12px rgba(255, 140, 89, 0.4));
 }
 
 .admin-login-title {
@@ -167,14 +177,14 @@
 .admin-input:focus, .adm-input:focus {
   outline: none;
   border-color: var(--adm-accent);
-  box-shadow: 0 0 0 2px rgba(76, 193, 170, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 140, 89, 0.1);
 }
 
 .admin-input::placeholder {
   color: var(--adm-text-dim);
 }
 
-.admin-input-error, .adm-input-error {
+.admin-input-error {
   border-color: #ef4444 !important;
 }
 
@@ -192,7 +202,7 @@
   font-size: 0.8rem;
   color: var(--adm-accent) !important;
   line-height: 1.4;
-  background: rgba(76, 193, 170, 0.08);
+  background: rgba(255, 140, 89, 0.08);
   padding: 0.6rem 0.8rem;
   border-radius: 5px;
   border-left: 3px solid var(--adm-accent);
@@ -201,7 +211,7 @@
 .admin-login-btn {
   padding: 0.85rem;
   background: var(--adm-accent);
-  color: #0a0a10;
+  color: var(--adm-bg);
   border: none;
   border-radius: 5px;
   font-size: 0.88rem;
@@ -224,7 +234,7 @@
 .admin-login-btn:hover:not(:disabled) {
   background: var(--adm-accent-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 193, 170, 0.25);
+  box-shadow: 0 4px 12px rgba(255, 140, 89, 0.25);
 }
 
 .admin-login-btn:disabled {
@@ -274,8 +284,8 @@
   display: inline-block;
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(10, 10, 16, 0.2);
-  border-top-color: #0a0a10;
+  border: 2px solid rgba(255, 140, 89, 0.15);
+  border-top-color: var(--adm-accent);
   border-radius: 50%;
   animation: adm-spin 0.75s linear infinite;
 }
@@ -320,7 +330,7 @@
 .adm-brand-icon {
   font-size: 1.4rem;
   color: var(--adm-accent);
-  filter: drop-shadow(0 0 8px rgba(76, 193, 170, 0.4));
+  filter: drop-shadow(0 0 8px rgba(255, 140, 89, 0.4));
   flex-shrink: 0;
 }
 
@@ -364,14 +374,14 @@
 }
 
 .adm-nav-item:hover {
-  background: rgba(76, 193, 170, 0.05);
+  background: rgba(255, 140, 89, 0.05);
   color: var(--adm-text-main);
 }
 
 .adm-nav-item.active {
-  background: rgba(76, 193, 170, 0.08);
+  background: rgba(255, 140, 89, 0.08);
   color: var(--adm-accent);
-  border-color: rgba(76, 193, 170, 0.15);
+  border-color: rgba(255, 140, 89, 0.15);
   font-weight: 600;
 }
 
@@ -409,13 +419,13 @@
 }
 
 .adm-view-site {
-  background: rgba(76, 193, 170, 0.05);
+  background: rgba(255, 140, 89, 0.05);
   color: var(--adm-accent);
-  border: 1px solid rgba(76, 193, 170, 0.15);
+  border: 1px solid rgba(255, 140, 89, 0.15);
 }
 
 .adm-view-site:hover {
-  background: rgba(76, 193, 170, 0.1);
+  background: rgba(255, 140, 89, 0.1);
   border-color: var(--adm-accent);
 }
 
@@ -455,6 +465,7 @@
   position: sticky;
   top: 0;
   z-index: 90;
+  border-bottom: 1px solid var(--adm-border);
 }
 
 .adm-header-left {
@@ -668,15 +679,6 @@
   justify-content: space-between;
 }
 
-.adm-card-row-num {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--adm-accent);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-family: var(--adm-font-mono);
-}
-
 .adm-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -686,8 +688,8 @@
 /* ── Action Buttons ── */
 .adm-add-btn {
   padding: 0.4rem 0.8rem;
-  background: rgba(76, 193, 170, 0.06);
-  border: 1px solid rgba(76, 193, 170, 0.2);
+  background: rgba(255, 140, 89, 0.06);
+  border: 1px solid rgba(255, 140, 89, 0.2);
   border-radius: 5px;
   color: var(--adm-accent);
   font-size: 0.75rem;
@@ -699,7 +701,7 @@
 }
 
 .adm-add-btn:hover {
-  background: rgba(76, 193, 170, 0.12);
+  background: rgba(255, 140, 89, 0.12);
   border-color: var(--adm-accent);
 }
 
@@ -734,7 +736,7 @@
 .adm-save-btn {
   padding: 0.6rem 1.2rem;
   background: var(--adm-accent);
-  color: #0a0a10;
+  color: var(--adm-bg);
   border: none;
   border-radius: 5px;
   font-size: 0.82rem;
@@ -755,7 +757,7 @@
 .adm-save-btn:hover {
   background: var(--adm-accent-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 193, 170, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 140, 89, 0.2);
 }
 
 .adm-save-btn.saving {
@@ -773,13 +775,13 @@
 }
 
 .adm-save-btn.dirty {
-  animation: pulse-green 2s infinite;
+  animation: pulse-amber 2s infinite;
 }
 
-@keyframes pulse-green {
-  0% { box-shadow: 0 0 0 0 rgba(76, 193, 170, 0.3); }
-  50% { box-shadow: 0 0 0 6px rgba(76, 193, 170, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(76, 193, 170, 0); }
+@keyframes pulse-amber {
+  0% { box-shadow: 0 0 0 0 rgba(255, 140, 89, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(255, 140, 89, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 140, 89, 0); }
 }
 
 .adm-dirty-dot {
@@ -789,85 +791,6 @@
   background: var(--adm-accent);
   border-radius: 50%;
   margin-left: 6px;
-}
-
-/* ══ CUSTOM TOGGLE SWITCH ══ */
-.adm-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-}
-
-.adm-toggle:focus-visible .adm-toggle-track {
-  box-shadow: 0 0 0 2px rgba(76, 193, 170, 0.4);
-}
-
-.adm-toggle-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.adm-toggle-track {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: #2a2a34;
-  border: 1px solid var(--adm-border);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.adm-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  background: #555;
-  border-radius: 50%;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-
-.adm-toggle-input:checked + .adm-toggle-track {
-  background: rgba(76, 193, 170, 0.2);
-  border-color: var(--adm-accent);
-}
-
-.adm-toggle-input:checked + .adm-toggle-track .adm-toggle-thumb {
-  transform: translateX(20px);
-  background: var(--adm-accent);
-  box-shadow: 0 0 8px rgba(76, 193, 170, 0.4);
-}
-
-.adm-toggle:hover .adm-toggle-track {
-  border-color: #444;
-}
-
-.adm-toggle:hover .adm-toggle-input:checked + .adm-toggle-track {
-  border-color: var(--adm-accent);
-  box-shadow: 0 0 12px rgba(76, 193, 170, 0.15);
-}
-
-.adm-toggle-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: var(--adm-font-mono);
-  color: var(--adm-text-dim);
-  letter-spacing: 0.5px;
-  min-width: 24px;
-  transition: color 0.3s ease;
-}
-
-.adm-toggle-input:checked ~ .adm-toggle-label {
-  color: var(--adm-accent);
 }
 
 /* ── Profile Picture Upload ── */
@@ -910,8 +833,8 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  background: rgba(76, 193, 170, 0.06);
-  border: 1px solid rgba(76, 193, 170, 0.2);
+  background: rgba(255, 140, 89, 0.06);
+  border: 1px solid rgba(255, 140, 89, 0.2);
   border-radius: 5px;
   color: var(--adm-accent);
   font-size: 0.8rem;
@@ -922,7 +845,7 @@
 }
 
 .adm-upload-btn:hover {
-  background: rgba(76, 193, 170, 0.12);
+  background: rgba(255, 140, 89, 0.12);
   border-color: var(--adm-accent);
 }
 
@@ -1031,13 +954,13 @@
 }
 
 .adm-icon-btn.edit {
-  background: rgba(76, 193, 170, 0.06);
+  background: rgba(255, 140, 89, 0.06);
   color: var(--adm-accent);
-  border: 1px solid rgba(76, 193, 170, 0.15);
+  border: 1px solid rgba(255, 140, 89, 0.15);
 }
 
 .adm-icon-btn.edit:hover {
-  background: rgba(76, 193, 170, 0.12);
+  background: rgba(255, 140, 89, 0.12);
   border-color: var(--adm-accent);
 }
 
@@ -1156,7 +1079,7 @@
 
 .adm-confirm-btn {
   background: var(--adm-accent);
-  color: #0a0a10;
+  color: var(--adm-bg);
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 5px;
@@ -1169,27 +1092,6 @@
 
 .adm-confirm-btn:hover {
   background: var(--adm-accent-light);
-}
-
-/* Image preview wrappers and delete overlapping buttons */
-.project-preview-box {
-  width: 100% !important;
-  max-width: 300px !important;
-  height: auto !important;
-  aspect-ratio: 16/9;
-  border-radius: 5px !important;
-  border: 1px solid var(--adm-border) !important;
-  background: var(--adm-bg);
-  position: relative;
-  overflow: visible !important;
-}
-
-.project-preview-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 5px;
-  display: block;
 }
 
 .adm-preview-del {
@@ -1234,7 +1136,7 @@
 .adm-spinner-big {
   width: 36px;
   height: 36px;
-  border: 2px solid rgba(76, 193, 170, 0.15);
+  border: 2px solid rgba(255, 140, 89, 0.15);
   border-top-color: var(--adm-accent);
   border-radius: 50%;
   animation: adm-spin 0.8s linear infinite;
@@ -1413,7 +1315,7 @@
 }
 
 .adm-more-item:hover, .adm-more-item:active {
-  background: rgba(76, 193, 170, 0.05);
+  background: rgba(255, 140, 89, 0.05);
   color: var(--adm-text-main);
 }
 

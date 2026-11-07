@@ -1,60 +1,61 @@
 import React from 'react';
-import { FaFileCode } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
-import WaveLayers from './WaveLayers';
 
-const MyUniverse = React.memo(({ showSummaryOnly, showStrengthsOnly }) => {
+const About = React.memo(() => {
   const { portfolio } = usePortfolio();
   const { about } = portfolio;
+  const badges = Array.isArray(about.badges) ? about.badges : [];
 
-  if (showSummaryOnly) {
-    return (
-      <div className="about-readme liquid-wave">
-        <WaveLayers />
-        <div className="readme-header">
-          <span className="icon"><FaFileCode /></span>
-          <span>about/README.md</span>
-        </div>
-        <div className="readme-body">
-          <h2>About Me</h2>
-          <p>{about.professionalSummary}</p>
-          <div className="readme-quote">
-            {about.quote}
-          </div>
-        </div>
-      </div>
-    );
+  const hasSummary = Boolean(about.professionalSummary);
+  const hasQuote = Boolean(about.quote);
+
+  if (!hasSummary && !hasQuote && badges.length === 0) {
+    return <p className="empty-state">Profile details have not been published yet.</p>;
   }
 
-  if (showStrengthsOnly) {
-    return (
-      <div className="about-readme liquid-wave">
-        <WaveLayers />
-        <div className="readme-header">
-          <span className="icon"><FaFileCode /></span>
-          <span>skills.config.js</span>
+  return (
+    <div className="about">
+      {hasSummary && (
+        <div
+          className="about__statement"
+          data-reveal
+          style={{ '--reveal-delay': '40ms' }}
+        >
+          <p className="about__summary">{about.professionalSummary}</p>
         </div>
-        <div className="readme-body">
-          <h2>Core Strengths</h2>
-          <p style={{fontSize:'0.82rem', color:'var(--text-dim)', marginBottom:'0.4rem', fontFamily:'var(--font-mono)'}}>
-            <span className="cm">{'// what drives my work'}</span>
-          </p>
-          <div className="pill-container">
-            {(about.badges || []).map((b, i) => {
-              const colorMap = { orange: 'orange', blue: 'purple', red: 'purple' };
-              return (
-                <span key={i} className={`skill-pill ${colorMap[b.type] || ''}`}>
-                  {b.label}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
+      )}
 
-  return null;
+      {hasQuote && (
+        <div
+          className="about__quote"
+          data-reveal="fade"
+          style={{ '--reveal-delay': '200ms' }}
+        >
+          <span className="about__quote-mark" aria-hidden="true">“</span>
+          <blockquote className="about__quote-text">{about.quote}</blockquote>
+        </div>
+      )}
+
+      <div
+        className="about__strengths"
+        data-reveal
+        style={{ '--reveal-delay': '320ms' }}
+      >
+        <h3 className="about__label">Core strengths</h3>
+        {badges.length > 0 ? (
+          <ul className="about__tags">
+            {badges.map((badge, index) => (
+              <li key={`${badge.label}-${index}`} className="about__tag">
+                {badge.label}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="empty-state empty-state--small">Strengths have not been published yet.</p>
+        )}
+      </div>
+    </div>
+  );
 });
 
-export default MyUniverse;
+export default About;

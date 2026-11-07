@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import { Field, useSave } from './AdminCommon';
 
 export default function AboutTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [about, setAbout] = useState({ ...portfolio.about, badges: [...(portfolio.about.badges || [])] });
   const isDirty = JSON.stringify(about) !== JSON.stringify(portfolio.about);
-  const [status, save] = useSave('about', about, updatePortfolio, setGlobalSave, isDirty);
+  useSave('about', about, updatePortfolio, setGlobalSave, isDirty);
   const set = (k) => (v) => setAbout((a) => ({ ...a, [k]: v }));
 
   const updateBadge = (i, field, val) => {

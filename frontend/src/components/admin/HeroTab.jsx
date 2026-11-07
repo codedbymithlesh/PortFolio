@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaUser, FaHourglassHalf, FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
-import { usePortfolio } from '../../context/PortfolioContext';
 import { Field, useSave } from './AdminCommon';
 
 export default function HeroTab({ portfolio, updatePortfolio, setGlobalSave }) {
-  const { API } = usePortfolio();
   const [hero, setHero] = useState({ ...portfolio.hero });
   const isDirty = JSON.stringify(hero) !== JSON.stringify(portfolio.hero);
-  const [status, save] = useSave('hero', hero, updatePortfolio, setGlobalSave, isDirty);
+  useSave('hero', hero, updatePortfolio, setGlobalSave, isDirty);
   const [uploadStatus, setUploadStatus] = useState('');
   const set = (k) => (v) => setHero((h) => ({ ...h, [k]: v }));
 

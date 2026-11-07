@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaInbox, FaPlus, FaCheck, FaTrash } from 'react-icons/fa';
 
 function MessageSkeleton({ count = 4 }) {
@@ -32,10 +32,6 @@ export default function MessagesTab() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
   const fetchMessages = async () => {
     const baseUrl = 'https://port-folio-backend-file.vercel.app';
     try {
@@ -47,6 +43,10 @@ export default function MessagesTab() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMessages();
+  }, []);
 
   const markRead = async (id) => {
     const baseUrl = 'https://port-folio-backend-file.vercel.app';

@@ -1,20 +1,23 @@
-import React, { Suspense, lazy, useEffect, useState, useCallback } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { FaWifi, FaRedo } from 'react-icons/fa';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-import TechnicalBackground from './components/TechnicalBackground';
-import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Hero from './components/Hero';
-import MyUniverse from './components/About';
+import About from './components/About';
+import Skills from './components/Skills';
+import Projects from './components/Projects';
 import Education from './components/Education';
-import TechArsenal from './components/Skills';
-import FeaturedBuilds from './components/Projects';
 import Contact from './components/Contact';
+import Section from './components/Section';
 import Preloader from './components/Preloader';
-import useLiquidWave from './hooks/useLiquidWave';
+import DecodeText from './components/DecodeText';
+import useReveal from './hooks/useReveal';
+import useLenis from './hooks/useLenis';
+import { PATH_TO_SECTION, scrollToSection } from './lib/navigation';
 
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -23,44 +26,27 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 import './admin.css';
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-  return isMobile;
-}
-
 const MainLayout = ({ children }) => {
-  const { loading, error } = usePortfolio();
+  const { loading, error, retry } = usePortfolio();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
-  useLiquidWave();
-
-  useEffect(() => {
-    if (loading || isAdmin) return;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('active');
-      });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, [loading, isAdmin]);
+  useReveal(!isAdmin, `${location.pathname}:${loading}`);
 
   if (error) {
     return (
-      <div className="no-copy">
-        <CustomCursor />
-        <div className="error-screen">
-          <FaWifi className="error-icon" />
-          <h2 className="error-title">Connection Error</h2>
-          <p className="error-text">{error}</p>
-          <button className="btn-primary" onClick={() => window.location.reload()}>
-            <FaRedo style={{ marginRight: '8px' }} /> Try Again
+      <div className="status-page">
+        <div className="container status-page__inner">
+          <FaWifi className="status-page__icon" aria-hidden="true" />
+          <h1 className="status-page__title">Connection error</h1>
+          <p className="status-page__text">{error}</p>
+          <button
+            type="button"
+            className="button button--primary"
+            onClick={retry}
+          >
+            <FaRedo aria-hidden="true" />
+            <DecodeText>Try again</DecodeText>
           </button>
         </div>
       </div>
@@ -69,7 +55,7 @@ const MainLayout = ({ children }) => {
 
   if (isAdmin) {
     return (
-      <div className="admin-layout-root no-copy">
+      <div className="admin-layout-root">
         <Preloader loading={loading} />
         {children}
       </div>
@@ -77,124 +63,114 @@ const MainLayout = ({ children }) => {
   }
 
   return (
-    <div className="no-copy">
-      <CustomCursor />
-      <Preloader loading={loading} />
-      <TechnicalBackground />
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content">{children}</main>
+    <div className="site-shell">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <div className="scroll-progress" aria-hidden="true">
+        <span />
       </div>
+      <Preloader loading={loading} />
+      <Navbar />
+      <main id="main-content" className="site-main">{children}</main>
+      <Footer />
     </div>
   );
 };
 
-const Portfolio = () => {
-  const { pathname } = useLocation();
-  const { portfolio } = usePortfolio();
-  const isMobile = useIsMobile();
-  const [mobilePage, setMobilePage] = useState('home');
-  const [direction, setDirection] = useState(1);
-
-  const pageOrder = ['home', 'about', 'skills', 'projects', 'contact'];
-
-  const getPageFromPath = useCallback((path) => {
-    if (path === '/' || path === '') return 'home';
-    if (path === '/about') return 'about';
-    if (path === '/skills') return 'skills';
-    if (path === '/projects') return 'projects';
-    if (path === '/contact') return 'contact';
-    return 'home';
-  }, []);
+const PublicPage = () => {
+  const { pathname, hash } = useLocation();
+  const { loading } = usePortfolio();
 
   useEffect(() => {
-    if (!isMobile) return;
-    const newPage = getPageFromPath(pathname);
-    const oldIndex = pageOrder.indexOf(mobilePage);
-    const newIndex = pageOrder.indexOf(newPage);
-    setDirection(newIndex >= oldIndex ? 1 : -1);
-    setMobilePage(newPage);
-  }, [pathname, isMobile, pageOrder, mobilePage, getPageFromPath]);
+    if (loading) return undefined;
 
-  useEffect(() => {
-    if (isMobile) return;
-    if (pathname === '/' || pathname === '') {
-      window.scrollTo(0, 0);
-    } else if (pathname === '/about') {
-      document.getElementById('universe')?.scrollIntoView({ behavior: 'instant' });
-    } else if (pathname === '/skills') {
-      document.getElementById('tech')?.scrollIntoView({ behavior: 'instant' });
-    } else if (pathname === '/projects') {
-      document.getElementById('builds')?.scrollIntoView({ behavior: 'instant' });
-    } else if (pathname === '/contact') {
-      document.getElementById('contact')?.scrollIntoView({ behavior: 'instant' });
-    }
-  }, [pathname, isMobile]);
+    const hashSection = hash ? hash.replace('#', '') : '';
+    const section = hashSection || PATH_TO_SECTION[pathname];
 
-  if (isMobile) {
-    const slideClass = direction > 0 ? 'mobile-slide-left' : 'mobile-slide-right';
-    return (
-      <div className="mobile-pages">
-        {mobilePage === 'home' && (
-          <div key="home" className={`mobile-page ${slideClass}`}>
-            <Hero />
-          </div>
-        )}
-        {mobilePage === 'about' && (
-          <div key="about" className={`mobile-page ${slideClass}`}>
-            <section id="universe" className="about-dashboard">
-              <div className="about-main"><MyUniverse showSummaryOnly={true} /></div>
-              <div className="about-side"><MyUniverse showStrengthsOnly={true} /></div>
-              <div className="about-bottom"><Education /></div>
-            </section>
-          </div>
-        )}
-        {mobilePage === 'skills' && (
-          <div key="skills" className={`mobile-page ${slideClass}`}>
-            <TechArsenal />
-          </div>
-        )}
-        {mobilePage === 'projects' && (
-          <div key="projects" className={`mobile-page ${slideClass}`}>
-            <FeaturedBuilds />
-          </div>
-        )}
-        {mobilePage === 'contact' && (
-          <div key="contact" className={`mobile-page ${slideClass}`}>
-            <Contact />
-          </div>
-        )}
-      </div>
-    );
-  }
+    if (!section) return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      scrollToSection(section, { behavior: hash ? 'smooth' : 'auto' });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [pathname, hash, loading]);
 
   return (
     <>
-      <div className="reveal"><Hero /></div>
-      <section id="universe" className="about-dashboard reveal">
-        <div className="about-main"><MyUniverse showSummaryOnly={true} /></div>
-        <div className="about-side"><MyUniverse showStrengthsOnly={true} /></div>
-        <div className="about-bottom"><Education /></div>
-      </section>
-      <div className="reveal"><TechArsenal /></div>
-      <div className="reveal"><FeaturedBuilds /></div>
-      <div className="reveal"><Contact /></div>
+      <Hero />
+
+      <Section
+        id="about"
+        index="01"
+        eyebrow="Profile"
+        title="About"
+        description="An introduction to the person behind the portfolio."
+        variant="about"
+      >
+        <About />
+      </Section>
+
+      <Section
+        id="capabilities"
+        index="02"
+        eyebrow="Stack"
+        title="Capabilities"
+        description="Frontend, backend, and the tools used to connect them."
+        variant="capabilities"
+      >
+        <Skills />
+      </Section>
+
+      <Section
+        id="work"
+        index="03"
+        eyebrow="Selected work"
+        title="Work"
+        description="Project work currently published in the portfolio."
+        variant="work"
+      >
+        <Projects />
+      </Section>
+
+      <Section
+        id="journey"
+        index="04"
+        eyebrow="Timeline"
+        title="Journey"
+        description="Education and milestones."
+        variant="journey"
+      >
+        <Education />
+      </Section>
+
+      <Section
+        id="contact"
+        index="05"
+        eyebrow="Get in touch"
+        title="Contact"
+        description="Start a conversation about a project or role."
+        variant="contact"
+      >
+        <Contact />
+      </Section>
     </>
   );
 };
 
 function App() {
+  useLenis();
+
   return (
     <Router>
       <PortfolioProvider>
         <MainLayout>
           <Suspense fallback={<Preloader loading={true} />}>
             <Routes>
-              <Route path="/" element={<Portfolio />} />
-              <Route path="/about" element={<Portfolio />} />
-              <Route path="/skills" element={<Portfolio />} />
-              <Route path="/projects" element={<Portfolio />} />
-              <Route path="/contact" element={<Portfolio />} />
+              <Route path="/" element={<PublicPage />} />
+              <Route path="/about" element={<PublicPage />} />
+              <Route path="/skills" element={<PublicPage />} />
+              <Route path="/projects" element={<PublicPage />} />
+              <Route path="/contact" element={<PublicPage />} />
               <Route path="/all-projects" element={<ProjectsPage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/*" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

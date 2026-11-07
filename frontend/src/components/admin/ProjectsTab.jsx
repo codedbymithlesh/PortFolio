@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaBriefcase, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { useSave } from './AdminCommon';
 import ProjectModal from './ProjectModal';
@@ -6,7 +6,7 @@ import ProjectModal from './ProjectModal';
 export default function ProjectsTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [projects, setProjects] = useState(portfolio.projects.map((p) => ({ ...p, tech: [...(p.tech || [])] })));
   const isDirty = JSON.stringify(projects) !== JSON.stringify(portfolio.projects);
-  const [status, save] = useSave('projects', projects, updatePortfolio, setGlobalSave, isDirty);
+  useSave('projects', projects, updatePortfolio, setGlobalSave, isDirty);
   
   const [editingIdx, setEditingIdx] = useState(null);
   const [isAdding, setIsAdding] = useState(false);

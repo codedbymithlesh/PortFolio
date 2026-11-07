@@ -1,21 +1,19 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
+import DecodeText from '../components/DecodeText';
 
 export default function NotFound() {
   return (
-    <div className="notfound-container">
-      <div className="notfound-content">
-        <div className="notfound-icon">
-          <FaExclamationTriangle />
-        </div>
-        <h1 className="notfound-title">404</h1>
-        <h2 className="notfound-subtitle">Oops! Universe Not Found</h2>
-        <p className="notfound-text">
-          The page you are looking for doesn't exist or has been moved to another dimension.
+    <div className="status-page status-page--not-found">
+      <div className="container status-page__inner">
+        <p className="status-page__code" aria-hidden="true">404</p>
+        <h1 className="status-page__title">Page not found</h1>
+        <p className="status-page__text">
+          The page you are looking for does not exist or has been moved.
         </p>
-        <Link to="/" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '2rem' }}>
-          <FaHome /> Back to Home
+        <Link to="/" className="button button--primary">
+          <FaArrowLeft aria-hidden="true" />
+          <DecodeText>Back to home</DecodeText>
         </Link>
       </div>
     </div>

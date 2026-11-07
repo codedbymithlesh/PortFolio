@@ -1,62 +1,144 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaUser, FaCode, FaBriefcase, FaEnvelope } from 'react-icons/fa';
+import { PATH_TO_SECTION, SECTION_IDS, SECTION_LINKS } from '../lib/navigation';
+import { getInitials } from '../lib/text';
+import useActiveSection from '../hooks/useActiveSection';
+import useDecodeText from '../hooks/useDecodeText';
+import SectionLink from './SectionLink';
+import DecodeText from './DecodeText';
 
-const BASE_NAV = [
-  { path: '/', label: 'Home', icon: <FaHome /> },
-  { path: '/about', label: 'About', icon: <FaUser /> },
-  { path: '/skills', label: 'Skills', icon: <FaCode /> },
-  { path: '/projects', label: 'Projects', icon: <FaBriefcase /> },
-  { path: '/contact', label: 'Contact', icon: <FaEnvelope /> },
-];
+const NO_SECTIONS = [];
+
+const NavItem = ({ item, index, active, onNavigate }) => {
+  const hostRef = useRef(null);
+  const binaryRef = useRef(null);
+  useDecodeText(item.label, hostRef, binaryRef);
+
+  return (
+    <li>
+      <SectionLink
+        section={item.id}
+        className={`site-nav__link ${active ? 'is-active' : ''}`.trim()}
+        aria-current={active ? 'location' : undefined}
+        onNavigate={onNavigate}
+      >
+        <span className="site-nav__index" aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <span className="nav-decode" ref={hostRef}>
+          <span className="nav-decode__label">{item.label}</span>
+          <span className="nav-decode__binary" aria-hidden="true" ref={binaryRef}>
+            {item.label}
+          </span>
+        </span>
+      </SectionLink>
+    </li>
+  );
+};
 
 const Navbar = React.memo(() => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { portfolio } = usePortfolio();
   const { hero } = portfolio;
   const location = useLocation();
-  const activePath = location.pathname;
+  const locationKey = `${location.pathname}${location.hash}`;
+  const [menu, setMenu] = useState({ at: locationKey, open: false });
+  let menuOpen = menu.open && menu.at === locationKey;
+  if (menu.at !== locationKey) {
+    menuOpen = false;
+    setMenu({ at: locationKey, open: false });
+  }
+  const toggleRef = useRef(null);
+  const onSectionRoute = Boolean(PATH_TO_SECTION[location.pathname]);
+  const activeSection = useActiveSection(onSectionRoute ? SECTION_IDS : NO_SECTIONS);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      setMenu((state) => ({ ...state, open: false }));
+      toggleRef.current?.focus();
+    };
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenu((state) => ({ ...state, open: false }));
 
   return (
-    <>
-      <nav className="navbar">
-        <Link to="/" className="nav-left" style={{ textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>
-          <div className="logo-icon">&lt;/&gt;</div>
-          <div className="logo-text">
-            <span className="logo-title">CodedByMithlesh<span style={{color:'var(--accent-green)'}}>.dev</span></span>
-          </div>
-        </Link>
+    <header className={`site-header ${menuOpen ? 'is-open' : ''}`.trim()}>
+      <div className="container site-header__inner">
+        <SectionLink
+          section="home"
+          className="brand"
+          aria-label={`${hero.name || 'Portfolio'} home`}
+          onNavigate={closeMenu}
+        >
+          <span className="brand__mark" aria-hidden="true">
+            {getInitials(hero.name)}
+          </span>
+          <span className="brand__text">
+            <span className="brand__name">{hero.name || 'Portfolio'}</span>
+            <span className="brand__meta">{hero.subtitle || 'Developer portfolio'}</span>
+          </span>
+        </SectionLink>
 
-        <div className="nav-right">
-          <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            <Link to="/" className={activePath === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>home.jsx</Link>
-            <Link to="/about" className={activePath === '/about' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>about.md</Link>
-            <Link to="/skills" className={activePath === '/skills' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>skills.json</Link>
-            <Link to="/projects" className={activePath === '/projects' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>projects/</Link>
-            <Link to="/contact" className={activePath === '/contact' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>contact.sh</Link>
-          </div>
-          <div className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span className={isMenuOpen ? "line open" : "line"}></span>
-            <span className={isMenuOpen ? "line open" : "line"}></span>
-            <span className={isMenuOpen ? "line open" : "line"}></span>
-          </div>
-        </div>
-      </nav>
-
-      <nav className="portfolio-bottom-nav">
-        {BASE_NAV.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`portfolio-bottom-item ${activePath === item.path ? 'active' : ''}`}
+        <nav className="site-nav" aria-label="Primary">
+          <button
+            ref={toggleRef}
+            type="button"
+            className={`site-nav__toggle ${menuOpen ? 'is-open' : ''}`.trim()}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+            onClick={() => setMenu((state) => (
+              state.open && state.at === locationKey
+                ? { ...state, open: false }
+                : { at: locationKey, open: true }
+            ))}
           >
-            <span className="portfolio-bottom-icon">{item.icon}</span>
-            <span className="portfolio-bottom-label">{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-    </>
+            <DecodeText>{menuOpen ? 'Close' : 'Menu'}</DecodeText>
+            <span className="site-nav__toggle-icon" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+          </button>
+
+          <div
+            id="primary-navigation"
+            className={`site-nav__panel ${menuOpen ? 'is-open' : ''}`.trim()}
+          >
+            <ul className="site-nav__list">
+              {SECTION_LINKS.map((item, index) => (
+                <NavItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  active={activeSection === item.id}
+                  onNavigate={closeMenu}
+                />
+              ))}
+            </ul>
+
+            <p className="site-nav__foot">
+              {hero.subtitle || 'Developer portfolio'}
+            </p>
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 });
 

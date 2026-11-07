@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { 
   FaGraduationCap, FaArrowUp, FaArrowDown, FaTrash, 
   FaPlus, FaChevronDown, FaChevronUp, FaExpand, FaCompress 
@@ -15,10 +15,13 @@ const getDotColorHex = (color) => {
   }
 };
 
+const ACCENT_RED = '#ff8c59';
+const ACCENT_RED_LIGHT = '#ffb08a';
+
 export default function EducationTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [edu, setEdu] = useState(portfolio.education.map((e) => ({ ...e })));
   const isDirty = JSON.stringify(edu) !== JSON.stringify(portfolio.education);
-  const [status, save] = useSave('education', edu, updatePortfolio, setGlobalSave, isDirty);
+  useSave('education', edu, updatePortfolio, setGlobalSave, isDirty);
 
   // Expanded indexes tracker (by default, expand the first card)
   const [expandedIdxs, setExpandedIdxs] = useState([0]);
@@ -92,7 +95,7 @@ export default function EducationTab({ portfolio, updatePortfolio, setGlobalSave
     <div className="adm-tab-panel" ref={scrollRef}>
       <div className="adm-main-header" style={{ padding: '0 0 1rem 0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
         <h3 className="adm-panel-title">
-          <FaGraduationCap style={{ marginRight: '10px', color: 'var(--adm-accent-red)' }} /> 
+          <FaGraduationCap style={{ marginRight: '10px', color: ACCENT_RED }} /> 
           Education & Timeline
         </h3>
         
@@ -131,7 +134,7 @@ export default function EducationTab({ portfolio, updatePortfolio, setGlobalSave
               style={{ 
                 padding: '0', 
                 overflow: 'hidden', 
-                border: isExpanded ? '1px solid rgba(244, 63, 94, 0.2)' : '1px solid var(--adm-border)' 
+                border: isExpanded ? `1px solid ${ACCENT_RED}40` : '1px solid var(--adm-border)' 
               }}
             >
               {/* ACCORDION TRIGGER HEADER */}
@@ -142,7 +145,7 @@ export default function EducationTab({ portfolio, updatePortfolio, setGlobalSave
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '1.1rem 1.5rem',
-                  background: isExpanded ? 'rgba(244, 63, 94, 0.04)' : 'rgba(255,255,255,0.01)',
+                  background: isExpanded ? 'rgba(255, 140, 89, 0.04)' : 'rgba(255,255,255,0.01)',
                   cursor: 'pointer',
                   borderBottom: isExpanded ? '1px solid var(--adm-border)' : 'none',
                   transition: 'all 0.3s ease',
@@ -168,7 +171,7 @@ export default function EducationTab({ portfolio, updatePortfolio, setGlobalSave
                     style={{ 
                       fontWeight: 700, 
                       fontSize: '0.98rem', 
-                      color: isExpanded ? 'var(--adm-accent-red-light)' : '#fff',
+                      color: isExpanded ? ACCENT_RED_LIGHT : '#fff',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis'

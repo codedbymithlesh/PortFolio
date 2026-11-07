@@ -1,94 +1,61 @@
 import React from 'react';
-import { FaLaptopCode, FaServer, FaTools } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
-import WaveLayers from './WaveLayers';
 
-const categoryMeta = {
-  frontend: { icon: FaLaptopCode, color: 'var(--accent-green)', label: 'Frontend' },
-  backend:  { icon: FaServer,      color: 'var(--accent-blue)',  label: 'Backend' },
-  tools:    { icon: FaTools,       color: 'var(--accent-orange)', label: 'Tools & Technologies' },
+const CATEGORY_META = {
+  frontend: { label: 'Frontend', titleId: 'capability-frontend' },
+  backend: { label: 'Backend', titleId: 'capability-backend' },
+  tools: { label: 'Tools & systems', titleId: 'capability-tools' },
 };
 
-const techColors = {
-  'react.js':     '#61dafb',
-  'javascript':   '#f7df1e',
-  'html':         '#e34f26',
-  'css':          '#1572b6',
-  'tailwind css': '#06b6d4',
-  'node.js':      '#339933',
-  'express.js':   '#ffffff',
-  'mongodb':      '#47a248',
-  'mysql':        '#4479a1',
-  'php':          '#777bb4',
-  'python':       '#3776ab',
-  'rest apis':    '#4CC1AA',
-  'git':          '#f05032',
-  'github':       '#ffffff',
-  'vs code':      '#007acc',
-  'postman':      '#ff6c37',
-  'figma':        '#f24e1e',
-  'npm':          '#cb3837',
-  'linux':        '#fcc624',
-  'vite':         '#646cff',
-  'next.js':      '#ffffff',
-};
+const Skills = React.memo(() => {
+  const { portfolio } = usePortfolio();
+  const { skills } = portfolio;
 
-const SkillCard = React.memo(({ category, skills, index }) => {
-  const meta = categoryMeta[category];
-  if (!meta) return null;
-  const Icon = meta.icon;
+  const categories = Object.keys(CATEGORY_META)
+    .filter((category) => Array.isArray(skills[category]) && skills[category].length > 0);
+
+  if (categories.length === 0) {
+    return <p className="empty-state">Capabilities have not been published yet.</p>;
+  }
 
   return (
-    <div className={`skill-category-card liquid-wave reveal reveal-delay-${(index % 3) + 1}`}>
-      <WaveLayers />
-      <div className="skill-category-header">
-        <span className="skill-category-icon" style={{ color: meta.color }}>
-          <Icon />
-        </span>
-        <h3 className="skill-category-title" style={{ color: meta.color }}>
-          {meta.label}
-        </h3>
-      </div>
-      <div className="skill-chips">
-        {skills.map((s, i) => {
-          const dotColor = techColors[s.toLowerCase()] || 'var(--accent-green)';
+    <div className="stack">
+      <span className="stack__ghost" aria-hidden="true">Stack</span>
+
+      <ul className="stack__list">
+        {categories.map((category, index) => {
+          const meta = CATEGORY_META[category];
+          const items = skills[category];
+
           return (
-            <span key={i} className="skill-chip">
-              <span className="skill-chip-dot" style={{ background: dotColor }}></span>
-              {s}
-            </span>
+            <li
+              key={category}
+              className="stack-row"
+              data-reveal
+              style={{ '--reveal-delay': `${index * 110}ms` }}
+            >
+              <div className="stack-row__head">
+                <span className="stack-row__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 id={meta.titleId} className="stack-row__title">
+                  {meta.label}
+                </h3>
+              </div>
+
+              <ul className="stack-row__items" aria-labelledby={meta.titleId}>
+                {items.map((item, itemIndex) => (
+                  <li key={`${item}-${itemIndex}`} className="stack-row__item">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 });
 
-const TechArsenal = React.memo(() => {
-  const { portfolio } = usePortfolio();
-  const { skills } = portfolio;
-
-  const categories = ['frontend', 'backend', 'tools'].filter(c => skills[c]?.length);
-
-  const enriched = categories.map(c => ({
-    ...categoryMeta[c],
-    category: c,
-    skills: skills[c],
-  }));
-
-  return (
-    <section id="tech" className="tech-section">
-      <div className="section-label">tech.stack</div>
-      <h2 className="section-title">Skills & Tools</h2>
-      <p className="section-subtitle">Technologies I work with daily</p>
-
-      <div className="skill-categories-grid">
-        {enriched.map((cat, i) => (
-          <SkillCard key={cat.category} category={cat.category} skills={cat.skills} index={i} />
-        ))}
-      </div>
-    </section>
-  );
-});
-
-export default TechArsenal;
+export default Skills;

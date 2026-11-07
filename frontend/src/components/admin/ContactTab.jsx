@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { Field, useSave } from './AdminCommon';
 
 export default function ContactTab({ portfolio, updatePortfolio, setGlobalSave }) {
   const [contact, setContact] = useState({ ...portfolio.contact });
   const isDirty = JSON.stringify(contact) !== JSON.stringify(portfolio.contact);
-  const [status, save] = useSave('contact', contact, updatePortfolio, setGlobalSave, isDirty);
+  useSave('contact', contact, updatePortfolio, setGlobalSave, isDirty);
   const set = (k) => (v) => setContact((c) => ({ ...c, [k]: v }));
 
   return (

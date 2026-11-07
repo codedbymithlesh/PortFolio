@@ -1,111 +1,167 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaArrowLeft, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
-import Preloader from '../components/Preloader';
+import { isUsableExternalUrl } from '../lib/links';
+import DecodeText from '../components/DecodeText';
+
+function ArchiveMedia({ project, index }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(project.previewImage) && !failed;
+  const number = String(index + 1).padStart(2, '0');
+
+  return (
+    <div className="archive-row__media">
+      {showImage ? (
+        <img
+          src={project.previewImage}
+          alt={`${project.title} project preview`}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div className="archive-row__placeholder" aria-hidden="true">
+          {number}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const Projects = () => {
-  const { portfolio, loading } = usePortfolio();
-  
+  const { portfolio } = usePortfolio();
+  const allProjects = React.useMemo(
+    () => [...(portfolio.projects || [])].reverse(),
+    [portfolio.projects],
+  );
+  const [visibleCount, setVisibleCount] = useState(6);
+  const observerTarget = useRef(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const allProjects = React.useMemo(() => [...(portfolio.projects || [])].reverse(), [portfolio.projects]);
-  const [visibleCount, setVisibleCount] = React.useState(6);
-  const observerTarget = React.useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && visibleCount < allProjects.length) {
-          setVisibleCount((prev) => prev + 3);
+          setVisibleCount((previous) => previous + 3);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    if (observerTarget.current) observer.observe(observerTarget.current);
 
     return () => observer.disconnect();
   }, [visibleCount, allProjects.length]);
 
-  if (loading) {
-    return <Preloader loading={true} />;
-  }
-
   const displayedProjects = allProjects.slice(0, visibleCount);
 
   return (
-    <div className="archive-page-wrapper">
-      <div className="archive-header reveal">
-        <div className="archive-breadcrumbs">
-          <Link to="/">Home</Link>
-          <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">Projects Archive</span>
-        </div>
-        <h1 className="archive-main-title">All Projects</h1>
-        <p className="archive-subtitle">A comprehensive archive of production applications, tools, and technical experiments I have engineered.</p>
-      </div>
+    <div className="page-shell page-shell--archive">
+      <div className="container">
+        <header className="archive__header">
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">All projects</span>
+          </nav>
 
-      <div className="archive-grid">
-        {displayedProjects.map((project, i) => (
-          <div key={i} className="archive-card reveal">
-            <div className="archive-image-wrapper">
-              {project.previewImage ? (
-                <img src={project.previewImage} alt={project.title} className="archive-image" />
-              ) : (
-                <div className="no-preview showcase-no-preview">
-                  <span className="no-preview-text">Masterpiece in Progress</span>
-                </div>
-              )}
-              <div className="archive-overlay"></div>
-            </div>
-            
-            <div className="archive-content">
-              <h3 className="archive-title">{project.title}</h3>
-              <div className="showcase-tags mb-3">
-                {(project.tech || []).slice(0, 3).map((t, j) => (
-                  <span key={j} className="showcase-tag">{t}</span>
-                ))}
-              </div>
-              <p className="archive-desc">{project.description}</p>
-              
-              <div className="archive-actions">
-                {project.link && project.link !== '#' ? (
-                  <a href={project.link} className="showcase-btn primary" target="_blank" rel="noopener noreferrer">
-                    <FaExternalLinkAlt /> Live
-                  </a>
-                ) : (
-                  <span className="showcase-btn disabled">Private</span>
-                )}
+          <h1 className="archive__title">All projects</h1>
 
-                {project.codeLink && project.codeLink !== '#' ? (
-                  <a href={project.codeLink} className="showcase-btn secondary" target="_blank" rel="noopener noreferrer">
-                    <FaCode /> Code
-                  </a>
-                ) : (
-                  <span className="showcase-btn disabled">Private</span>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          <p className="archive__lede">
+            The complete project archive currently published in the portfolio.
+          </p>
+        </header>
 
-      <div ref={observerTarget} style={{ height: '50px', margin: '4rem 0', display: 'flex', justifyContent: 'center' }}>
-        {visibleCount < allProjects.length && (
-          <div className="adm-spinner-big" style={{ width: '40px', height: '40px', borderTopColor: 'var(--accent-red)' }}></div>
+        {displayedProjects.length > 0 ? (
+          <ol className="archive-list">
+            {displayedProjects.map((project, index) => {
+              const hasLiveLink = isUsableExternalUrl(project.link);
+              const hasCodeLink = isUsableExternalUrl(project.codeLink);
+
+              return (
+                <li
+                  key={`${project.title}-${index}`}
+                  className="archive-row"
+                  style={{ '--row-index': index }}
+                >
+                  <span className="archive-row__index" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+
+                  <ArchiveMedia project={project} index={index} />
+
+                  <div className="archive-row__body">
+                    <h2 className="archive-row__title">{project.title}</h2>
+
+                    {project.description && (
+                      <p className="archive-row__desc">{project.description}</p>
+                    )}
+
+                    {Array.isArray(project.tech) && project.tech.length > 0 && (
+                      <ul className="archive-row__tags">
+                        {project.tech.map((tech, techIndex) => (
+                          <li key={`${tech}-${techIndex}`} className="archive-row__tag">
+                            {tech}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <div className="archive-row__actions">
+                      {hasLiveLink && (
+                        <a
+                          href={project.link}
+                          className="text-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaExternalLinkAlt aria-hidden="true" />
+                          <DecodeText>Live site</DecodeText>
+                        </a>
+                      )}
+
+                      {hasCodeLink && (
+                        <a
+                          href={project.codeLink}
+                          className="text-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaCode aria-hidden="true" />
+                          <DecodeText>Source code</DecodeText>
+                        </a>
+                      )}
+
+                      {!hasLiveLink && !hasCodeLink && (
+                        <span className="work-item__private">Private project</span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <p className="empty-state">The archive is currently empty.</p>
         )}
+
+        <div
+          ref={observerTarget}
+          className="archive-sentinel"
+          aria-hidden={visibleCount >= allProjects.length}
+        >
+          {visibleCount < allProjects.length && <div className="archive-spinner" />}
+        </div>
+
+        <Link to="/" className="page-back">
+          <FaArrowLeft aria-hidden="true" />
+          <DecodeText>Back to home</DecodeText>
+        </Link>
       </div>
-      
-      {(allProjects && allProjects.length === 0) && (
-        <p style={{ color: '#9CA3AF', textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
-          The archive is currently empty. Check back soon!
-        </p>
-      )}
     </div>
   );
 };
